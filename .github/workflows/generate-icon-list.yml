@@ -1,0 +1,74 @@
+name: Generate Icon Lists
+
+on:
+  push:
+    branches: [ main ]
+    paths: 
+      - '*/*.png'
+      - '*/**/*.png'
+  workflow_dispatch:
+
+jobs:
+  generate-lists:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Generate icon lists for all folders
+      run: |
+        # 除外するフォルダ
+        EXCLUDE_FOLDERS=".git .github template"
+        
+        # PNGファイルを含むフォルダを自動検出
+        for folder in */; do
+          if [ -d "$folder" ]; then
+            folder_name=$(basename "$folder")
+            
+            # 除外フォルダをスキップ
+            skip=false
+            for exclude in $EXCLUDE_FOLDERS; do
+              if [ "$folder_name" = "$exclude" ]; then
+                skip=true
+                break
+              fi
+            done
+            
+            if [ "$skip" = true ]; then
+              continue
+            fi
+            
+            # PNGファイルが存在するかチェック
+            if ls "$folder"*.png 1> /dev/null 2>&1; then
+              echo "Generating icon list for: $folder_name"
+              cd "$folder"
+              
+              echo '{"icons":[' > icons.json
+              for file in *.png; do
+                if [ -f "$file" ]; then
+                  echo "  \"$file\"," >> icons.json
+                fi
+              done
+              
+              # 最後のカンマを削除
+              sed -i '$ s/,$//' icons.json
+              echo ']}' >> icons.json
+              
+              icon_count=$(cat icons.json | jq -r '.icons | length' 2>/dev/null || echo "unknown")
+              echo "Generated $folder_name icons list: $icon_count icons"
+              
+              cd ..
+            else
+              echo "No PNG files found in: $folder_name"
+            fi
+          fi
+        done
+        
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add */icons.json
+        git diff --staged --quiet || git commit -m "🤖 Update icon lists [skip ci]"
+        git push

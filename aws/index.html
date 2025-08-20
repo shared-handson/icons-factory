@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icons - Icons Factory</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .icons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .icon-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .icon-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+        
+        .icon-image {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 15px;
+            display: block;
+        }
+        
+        .icon-name {
+            text-align: center;
+            font-weight: 500;
+            margin-bottom: 15px;
+            color: #333;
+            word-break: break-word;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .btn-copy {
+            background-color: #4285f4;
+            color: white;
+        }
+        
+        .btn-copy:hover {
+            background-color: #3367d6;
+        }
+        
+        .btn-download {
+            background-color: #34a853;
+            color: white;
+        }
+        
+        .btn-download:hover {
+            background-color: #137333;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #333;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 4px;
+            opacity: 0;
+            transform: translateY(100%);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="page-title">Icons</h1>
+    <div id="loading" class="loading">アイコンを読み込み中...</div>
+    <div id="icons-container" class="icons-grid"></div>
+    
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // フォルダ名を自動取得
+        const folderName = window.location.pathname.split('/').filter(p => p).pop() || '';
+        
+        // ページタイトルを自動設定
+        if (folderName) {
+            const displayName = folderName.toUpperCase();
+            document.getElementById('page-title').textContent = `${displayName} Icons`;
+            document.title = `${displayName} Icons - Icons Factory`;
+        }
+
+        // GitHub Pagesのベースパス設定
+        const getIconUrl = (filename) => {
+            const currentPath = window.location.pathname;
+            if (currentPath.includes('/icons-factory/')) {
+                return `https://raw.githubusercontent.com/${window.location.hostname.split('.')[0]}/icons-factory/main/${folderName}/${filename}`;
+            }
+            return `./${filename}`;
+        };
+
+        // アイコンリストJSONのURL
+        const getIconListUrl = () => {
+            const currentPath = window.location.pathname;
+            if (currentPath.includes('/icons-factory/')) {
+                return `https://raw.githubusercontent.com/${window.location.hostname.split('.')[0]}/icons-factory/main/${folderName}/icons.json`;
+            }
+            return './icons.json';
+        };
+
+        // トースト表示
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // URLコピー機能
+        async function copyUrl(filename) {
+            const url = getIconUrl(filename);
+            try {
+                await navigator.clipboard.writeText(url);
+                showToast('URLをコピーしました');
+            } catch (err) {
+                showToast('コピーに失敗しました');
+            }
+        }
+
+        // ダウンロード機能
+        function downloadIcon(filename) {
+            const url = getIconUrl(filename);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showToast('ダウンロードを開始しました');
+        }
+
+        // アイコンカードを動的に生成
+        function createIconCard(filename) {
+            const iconName = filename.replace('.png', '').replace(/-/g, ' ');
+            const iconUrl = getIconUrl(filename);
+            
+            return `
+                <div class="icon-card">
+                    <img src="${iconUrl}" alt="${iconName}" class="icon-image" 
+                         onerror="this.style.display='none'">
+                    <div class="icon-name">${iconName}</div>
+                    <div class="button-group">
+                        <button class="btn btn-copy" onclick="copyUrl('${filename}')">
+                            📋 URL コピー
+                        </button>
+                        <button class="btn btn-download" onclick="downloadIcon('${filename}')">
+                            💾 ダウンロード
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // アイコンリストを読み込み
+        async function loadIconList() {
+            const iconsContainer = document.getElementById('icons-container');
+            const loading = document.getElementById('loading');
+            
+            try {
+                // GitHub Actionsで生成されたアイコンリストを取得
+                const response = await fetch(getIconListUrl());
+                if (!response.ok) {
+                    throw new Error('アイコンリストの取得に失敗');
+                }
+                
+                const data = await response.json();
+                const icons = data.icons || [];
+                
+                if (icons.length > 0) {
+                    // アイコンカードを生成
+                    const iconsHtml = icons.map(createIconCard).join('');
+                    iconsContainer.innerHTML = iconsHtml;
+                    showToast(`${icons.length}個のアイコンを読み込みました`);
+                } else {
+                    iconsContainer.innerHTML = '<p style="text-align: center; color: #666;">アイコンが見つかりませんでした</p>';
+                }
+                
+            } catch (error) {
+                console.error('アイコンリストの読み込みに失敗:', error);
+                iconsContainer.innerHTML = '<p style="text-align: center; color: #ff4444;">アイコンリストの読み込みに失敗しました</p>';
+                showToast('アイコンリストの読み込みに失敗しました');
+            } finally {
+                // ローディング非表示
+                loading.style.display = 'none';
+            }
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadIconList();
+        });
+    </script>
+</body>
+</html>
