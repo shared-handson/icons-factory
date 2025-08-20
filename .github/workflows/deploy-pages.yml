@@ -10,6 +10,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  actions: read
 
 # 同じ種類のワークフローが複数実行されることを防ぐ
 concurrency:
