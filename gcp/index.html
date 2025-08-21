@@ -155,10 +155,15 @@
         };
 
         // トースト表示
-        function showToast(message) {
+        function showToast(message, type = 'info') {
             const toast = document.getElementById('toast');
             toast.textContent = message;
-            toast.classList.add('show');
+            toast.className = 'toast show';
+            if (type === 'error') {
+                toast.style.backgroundColor = '#f44336';
+            } else {
+                toast.style.backgroundColor = '#333';
+            }
             setTimeout(() => {
                 toast.classList.remove('show');
             }, 3000);
@@ -176,15 +181,36 @@
         }
 
         // ダウンロード機能
-        function downloadIcon(filename) {
-            const url = getIconUrl(filename);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            showToast('ダウンロードを開始しました');
+        async function downloadIcon(filename) {
+            try {
+                showToast('ダウンロード準備中...');
+                
+                // 相対パスでファイルにアクセス（同一オリジンなのでCORS制限なし）
+                const response = await fetch(`./${filename}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                
+                // オブジェクトURLをクリーンアップ
+                window.URL.revokeObjectURL(url);
+                
+                showToast('ダウンロードを開始しました');
+            } catch (error) {
+                console.error('ダウンロードエラー:', error);
+                showToast('ダウンロードに失敗しました', 'error');
+            }
         }
 
         // アイコンカードを動的に生成
