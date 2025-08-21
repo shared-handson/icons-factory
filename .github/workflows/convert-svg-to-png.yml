@@ -1,0 +1,125 @@
+name: Convert SVG to PNG
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "*/*.svg"
+  workflow_dispatch:
+
+jobs:
+  convert-svg:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y inkscape
+
+      - name: Convert SVG to PNG
+        run: |
+          # 共通の除外フォルダ設定（generate-icon-listと統一）
+          EXCLUDE_FOLDERS=".git .github template"
+          converted_files=0
+          deleted_svgs=0
+
+          # 共通のフォルダ除外判定関数
+          should_skip_folder() {
+            local folder_name="$1"
+            for exclude in $EXCLUDE_FOLDERS; do
+              if [ "$folder_name" = "$exclude" ]; then
+                return 0  # skip
+              fi
+            done
+            return 1  # process
+          }
+
+          # SVGファイルを含むフォルダを検索
+          for folder in */; do
+            if [ -d "$folder" ]; then
+              folder_name=$(basename "$folder")
+              
+              # 除外フォルダをスキップ
+              if should_skip_folder "$folder_name"; then
+                continue
+              fi
+              
+              # SVGファイルが存在するかチェック
+              if ls "$folder"*.svg 1> /dev/null 2>&1; then
+                echo "Converting SVGs in: $folder_name"
+                cd "$folder"
+                
+                for svg_file in *.svg; do
+                  if [ -f "$svg_file" ]; then
+                    # ファイル名からPNG名を生成（拡張子を変更）
+                    png_file="${svg_file%.svg}.png"
+                    
+                    echo "Converting: $svg_file -> $png_file"
+                    
+                    # Inkscapeを使用してSVGをPNGに変換（512x512px）
+                    inkscape --export-type=png \
+                             --export-width=512 \
+                             --export-height=512 \
+                             --export-filename="$png_file" \
+                             "$svg_file"
+                    
+                    if [ $? -eq 0 ]; then
+                      echo "✅ Successfully converted: $svg_file"
+                      converted_files=$((converted_files + 1))
+                      
+                      # 変換成功後にSVGファイルを削除
+                      rm "$svg_file"
+                      if [ $? -eq 0 ]; then
+                        echo "🗑️  Deleted original SVG: $svg_file"
+                        deleted_svgs=$((deleted_svgs + 1))
+                      else
+                        echo "⚠️  Failed to delete SVG: $svg_file"
+                      fi
+                    else
+                      echo "❌ Failed to convert: $svg_file"
+                    fi
+                  fi
+                done
+                
+                cd ..
+              fi
+            fi
+          done
+
+          echo "📊 Conversion Summary:"
+          echo "   - Total files converted: $converted_files"
+          echo "   - Total SVGs deleted: $deleted_svgs"
+
+      - name: Commit converted PNG files and removed SVGs
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          # 新しいPNGファイルをステージング
+          git add */*.png
+          
+          # 削除されたSVGファイルをステージング
+          git add -u */
+          
+          # 変更があるかチェック
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "🤖 Convert SVG to PNG and cleanup SVG files [skip ci]"
+            git push
+            echo "✅ Committed PNG files and removed SVG sources"
+          fi
+
+      - name: Trigger icon list generation
+        if: success()
+        run: |
+          # アイコンリスト生成ワークフローをトリガー
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/generate-icon-list.yml/dispatches \
+            -d '{"ref":"main"}'
