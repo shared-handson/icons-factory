@@ -351,7 +351,6 @@
         align-items: center;
         padding: 16px 24px;
         border-bottom: 1px solid #f8fafc;
-        cursor: pointer;
         transition: background 0.2s ease;
         text-decoration: none;
         color: inherit;
@@ -393,6 +392,51 @@
         letter-spacing: 0.5px;
       }
 
+      .search-result-actions {
+        display: flex;
+        gap: 8px;
+        margin-left: 12px;
+      }
+
+      .search-action-btn {
+        padding: 6px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        background: white;
+        color: #475569;
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
+      }
+
+      .search-action-btn:hover {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+        transform: translateY(-1px);
+      }
+
+      .search-action-btn.copy {
+        border-color: #3b82f6;
+        color: #3b82f6;
+      }
+
+      .search-action-btn.copy:hover {
+        background: #dbeafe;
+      }
+
+      .search-action-btn.download {
+        border-color: #10b981;
+        color: #10b981;
+      }
+
+      .search-action-btn.download:hover {
+        background: #d1fae5;
+      }
+
       .search-no-results {
         padding: 40px 24px;
         text-align: center;
@@ -411,6 +455,36 @@
         padding: 2px 4px;
         border-radius: 3px;
         font-weight: 600;
+      }
+
+      /* トースト通知 */
+      .toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #1f2937;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        opacity: 0;
+        transform: translateY(100%);
+        transition: all 0.3s ease;
+        z-index: 10000;
+        font-size: 0.9rem;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .toast.error {
+        background-color: #dc2626;
+      }
+
+      .toast.success {
+        background-color: #059669;
       }
 
       @media (max-width: 768px) {
@@ -630,10 +704,63 @@
         <p>個人利用向けアイコンコレクション</p>
       </footer>
     </div>
+    
+    <!-- トースト通知 -->
+    <div id="toast" class="toast"></div>
     <script>
       // 検索機能の実装
       let searchIndex = [];
       let searchTimeout;
+
+      // トースト表示
+      function showToast(message, type = 'info') {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = `toast show ${type}`;
+        setTimeout(() => {
+          toast.classList.remove('show');
+        }, 3000);
+      }
+
+      // URLコピー機能
+      async function copyIconUrl(category, filename) {
+        const url = `${window.location.origin}${window.location.pathname}${category}/${filename}`;
+        try {
+          await navigator.clipboard.writeText(url);
+          showToast('URLをコピーしました', 'success');
+        } catch (err) {
+          showToast('コピーに失敗しました', 'error');
+        }
+      }
+
+      // ダウンロード機能
+      async function downloadIcon(category, filename) {
+        try {
+          showToast('ダウンロード準備中...', 'info');
+          const response = await fetch(`./${category}/${filename}`);
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          a.style.display = 'none';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          
+          window.URL.revokeObjectURL(url);
+          showToast('ダウンロードを開始しました', 'success');
+        } catch (error) {
+          console.error('ダウンロードエラー:', error);
+          showToast('ダウンロードに失敗しました', 'error');
+        }
+      }
 
       // 検索インデックスを読み込み
       async function loadSearchIndex() {
@@ -680,13 +807,21 @@
           const resultHtml = results.slice(0, 20).map(icon => {
             const highlightedName = highlightText(icon.name, query);
             return `
-              <a href="./${icon.category}/" class="search-result-item">
+              <div class="search-result-item">
                 <img src="./${icon.path}" alt="${escapeHtml(icon.name)}" class="search-result-icon">
                 <div class="search-result-content">
                   <div class="search-result-name">${highlightedName}</div>
                   <div class="search-result-category">${getCategoryDisplayName(icon.category)}</div>
                 </div>
-              </a>
+                <div class="search-result-actions">
+                  <button class="search-action-btn copy" onclick="copyIconUrl('${icon.category}', '${icon.filename}')">
+                    📋 URL
+                  </button>
+                  <button class="search-action-btn download" onclick="downloadIcon('${icon.category}', '${icon.filename}')">
+                    💾 DL
+                  </button>
+                </div>
+              </div>
             `;
           }).join('');
 
