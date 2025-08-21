@@ -28,7 +28,7 @@
         }
         
         .icon-card {
-            background: white;
+            background: #f8f9fa;
             border-radius: 8px;
             padding: 20px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -41,18 +41,28 @@
         }
         
         .icon-image {
-            width: 64px;
-            height: 64px;
+            max-width: 64px;
+            max-height: 64px;
+            width: auto;
+            height: auto;
             margin: 0 auto 15px;
             display: block;
+            object-fit: contain;
         }
         
         .icon-name {
             text-align: center;
             font-weight: 500;
-            margin-bottom: 15px;
+            margin-bottom: 8px;
             color: #333;
             word-break: break-word;
+        }
+        
+        .icon-size {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 15px;
         }
         
         .button-group {
@@ -384,12 +394,14 @@
             }
             
             const iconUrl = getIconDisplayUrl(filename);
+            const iconId = `icon_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
             
             return `
                 <div class="icon-card">
-                    <img src="${iconUrl}" alt="${filename.replace('.png', '')}" class="icon-image" 
-                         onerror="this.style.display='none'">
+                    <img id="${iconId}" src="${iconUrl}" alt="${filename.replace('.png', '')}" class="icon-image" 
+                         onerror="this.style.display='none'" onload="updateIconSize('${iconId}', '${filename}')">
                     <div class="icon-name">${iconName}</div>
+                    <div id="${iconId}_size" class="icon-size">読み込み中...</div>
                     <div class="button-group">
                         <button class="btn btn-copy" onclick="copyUrl('${filename}')">
                             📋 URL コピー
@@ -418,6 +430,20 @@
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+        
+        // アイコンサイズ取得・表示
+        function updateIconSize(iconId, filename) {
+            const img = document.getElementById(iconId);
+            const sizeDiv = document.getElementById(`${iconId}_size`);
+            
+            if (img && sizeDiv) {
+                if (img.naturalWidth && img.naturalHeight) {
+                    sizeDiv.textContent = `${img.naturalWidth} × ${img.naturalHeight}px`;
+                } else {
+                    sizeDiv.textContent = 'サイズ取得失敗';
+                }
+            }
         }
         
         // アイコンリストを読み込み（検索対応版）
