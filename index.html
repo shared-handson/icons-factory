@@ -1,329 +1,348 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
     <!-- Deployment test: 2025-08-21 -->
     <title>Icons Factory - アイコンギャラリー</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 60px;
-            padding: 40px 0;
-        }
-        
-        .logo {
-            font-size: 3.5rem;
-            font-weight: 700;
-            color: white;
-            margin-bottom: 16px;
-            text-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-        
-        .tagline {
-            font-size: 1.3rem;
-            color: rgba(255,255,255,0.9);
-            margin-bottom: 32px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        .stats {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            flex-wrap: wrap;
-        }
-        
-        .stat {
-            text-align: center;
-            color: white;
-        }
-        
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 600;
-            display: block;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        .stat-label {
-            font-size: 0.9rem;
-            opacity: 0.9;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .platforms-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 32px;
-            margin: 60px 0;
-        }
-        
-        .platform-card {
-            background: white;
-            border-radius: 16px;
-            padding: 32px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            text-decoration: none;
-            color: inherit;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .platform-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            transition: height 0.3s ease;
-        }
-        
-        .platform-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-        }
-        
-        .platform-card:hover::before {
-            height: 8px;
-        }
-        
-        .platform-icon {
-            width: 64px;
-            height: 64px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            color: white;
-            font-weight: 600;
-        }
-        
-        .platform-name {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 12px;
-            color: #2d3748;
-        }
-        
-        .platform-description {
-            color: #718096;
-            margin-bottom: 20px;
-            line-height: 1.6;
-        }
-        
-        .platform-stats {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .icon-count {
-            font-size: 0.9rem;
-            color: #4a5568;
-            font-weight: 500;
-        }
-        
-        .visit-button {
-            background: #f7fafc;
-            color: #4a5568;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-        
-        .platform-card:hover .visit-button {
-            background: #edf2f7;
-            transform: translateX(4px);
-        }
-        
-        /* プラットフォーム固有のカラー */
-        /* 🚨 新しいカテゴリを追加する場合は下記の形式でCSS追加 🚨 */
-        .gcp::before { background: #4285f4; }
-        .gcp .platform-icon { background: linear-gradient(135deg, #4285f4, #3367d6); }
-        
-        .aws::before { background: #ff9900; }
-        .aws .platform-icon { background: linear-gradient(135deg, #ff9900, #e68900); }
-        
-        .kubernetes::before { background: #326ce5; }
-        .kubernetes .platform-icon { background: linear-gradient(135deg, #326ce5, #2557cc); }
-        
-        .cncf::before { background: #437cdb; }
-        .cncf .platform-icon { background: linear-gradient(135deg, #437cdb, #3366cc); }
-        
-        /* 例: Azure カテゴリを追加する場合
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+          "Oxygen", "Ubuntu", "Cantarell", sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 60px;
+        padding: 40px 0;
+      }
+
+      .logo {
+        font-size: 3.5rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 16px;
+        text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .tagline {
+        font-size: 1.3rem;
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 32px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .stats {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        flex-wrap: wrap;
+      }
+
+      .stat {
+        text-align: center;
+        color: white;
+      }
+
+      .stat-number {
+        font-size: 2.5rem;
+        font-weight: 600;
+        display: block;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .platforms-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 32px;
+        margin: 60px 0;
+      }
+
+      .platform-card {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+        color: inherit;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .platform-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        transition: height 0.3s ease;
+      }
+
+      .platform-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      }
+
+      .platform-card:hover::before {
+        height: 8px;
+      }
+
+      .platform-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        color: white;
+        font-weight: 600;
+      }
+
+      .platform-name {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #2d3748;
+      }
+
+      .platform-description {
+        color: #718096;
+        margin-bottom: 20px;
+        line-height: 1.6;
+      }
+
+      .platform-stats {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .icon-count {
+        font-size: 0.9rem;
+        color: #4a5568;
+        font-weight: 500;
+      }
+
+      .visit-button {
+        background: #f7fafc;
+        color: #4a5568;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+      }
+
+      .platform-card:hover .visit-button {
+        background: #edf2f7;
+        transform: translateX(4px);
+      }
+
+      /* プラットフォーム固有のカラー */
+      /* 🚨 新しいカテゴリを追加する場合は下記の形式でCSS追加 🚨 */
+      .gcp::before {
+        background: #4285f4;
+      }
+      .gcp .platform-icon {
+        background: linear-gradient(135deg, #4285f4, #3367d6);
+      }
+
+      .aws::before {
+        background: #ff9900;
+      }
+      .aws .platform-icon {
+        background: linear-gradient(135deg, #ff9900, #e68900);
+      }
+
+      .kubernetes::before {
+        background: #326ce5;
+      }
+      .kubernetes .platform-icon {
+        background: linear-gradient(135deg, #326ce5, #2557cc);
+      }
+
+      .cncf::before {
+        background: #437cdb;
+      }
+      .cncf .platform-icon {
+        background: linear-gradient(135deg, #437cdb, #3366cc);
+      }
+
+      .logo::before {
+        background: #565656;
+      }
+      .logo .platform-icon {
+        background: linear-gradient(135deg, #565656, #565656);
+      }
+
+      /* 例: Azure カテゴリを追加する場合
         .azure::before { background: #0078d4; }
         .azure .platform-icon { background: linear-gradient(135deg, #0078d4, #106ebe); }
         */
-        
+
+      .features {
+        background: white;
+        border-radius: 16px;
+        padding: 40px;
+        margin: 60px 0;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      }
+
+      .features h2 {
+        text-align: center;
+        font-size: 2rem;
+        color: #2d3748;
+        margin-bottom: 40px;
+      }
+
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 32px;
+      }
+
+      .feature {
+        text-align: center;
+      }
+
+      .feature-icon {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 16px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+      }
+
+      .feature h3 {
+        font-size: 1.2rem;
+        color: #2d3748;
+        margin-bottom: 12px;
+      }
+
+      .feature p {
+        color: #718096;
+        line-height: 1.6;
+      }
+
+      footer {
+        text-align: center;
+        padding: 40px 0;
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      .footer-links {
+        display: flex;
+        justify-content: center;
+        gap: 32px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+      }
+
+      .footer-links a {
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+        transition: color 0.2s ease;
+      }
+
+      .footer-links a:hover {
+        color: white;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 16px;
+        }
+
+        .logo {
+          font-size: 2.5rem;
+        }
+
+        .tagline {
+          font-size: 1.1rem;
+        }
+
+        .stats {
+          gap: 24px;
+        }
+
+        .stat-number {
+          font-size: 2rem;
+        }
+
+        .platforms-grid {
+          grid-template-columns: 1fr;
+          gap: 24px;
+        }
+
+        .platform-card {
+          padding: 24px;
+        }
+
         .features {
-            background: white;
-            border-radius: 16px;
-            padding: 40px;
-            margin: 60px 0;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+          padding: 24px;
         }
-        
-        .features h2 {
-            text-align: center;
-            font-size: 2rem;
-            color: #2d3748;
-            margin-bottom: 40px;
-        }
-        
+
         .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 32px;
+          grid-template-columns: 1fr;
+          gap: 24px;
         }
-        
-        .feature {
-            text-align: center;
-        }
-        
-        .feature-icon {
-            width: 48px;
-            height: 48px;
-            margin: 0 auto 16px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-        }
-        
-        .feature h3 {
-            font-size: 1.2rem;
-            color: #2d3748;
-            margin-bottom: 12px;
-        }
-        
-        .feature p {
-            color: #718096;
-            line-height: 1.6;
-        }
-        
-        footer {
-            text-align: center;
-            padding: 40px 0;
-            color: rgba(255,255,255,0.8);
-        }
-        
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 32px;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-        }
-        
-        .footer-links a {
-            color: rgba(255,255,255,0.9);
-            text-decoration: none;
-            transition: color 0.2s ease;
-        }
-        
-        .footer-links a:hover {
-            color: white;
-        }
-        
-        @media (max-width: 768px) {
-            .container {
-                padding: 16px;
-            }
-            
-            .logo {
-                font-size: 2.5rem;
-            }
-            
-            .tagline {
-                font-size: 1.1rem;
-            }
-            
-            .stats {
-                gap: 24px;
-            }
-            
-            .stat-number {
-                font-size: 2rem;
-            }
-            
-            .platforms-grid {
-                grid-template-columns: 1fr;
-                gap: 24px;
-            }
-            
-            .platform-card {
-                padding: 24px;
-            }
-            
-            .features {
-                padding: 24px;
-            }
-            
-            .features-grid {
-                grid-template-columns: 1fr;
-                gap: 24px;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <header>
-            <h1 class="logo">Icons Factory</h1>
-            <p class="tagline">開発・インフラ用アイコンの個人コレクション</p>
-            <div class="stats">
-                <div class="stat">
-                    <span class="stat-number">1000+</span>
-                    <span class="stat-label">Icons</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-number">4</span>
-                    <span class="stat-label">Categories</span>
-                </div>
-            </div>
-        </header>
-        
-        <main>
-            <!-- 
+      <header>
+        <h1 class="logo">Icons Factory</h1>
+        <p class="tagline">開発・インフラ用アイコンの個人コレクション</p>
+        <div class="stats">
+          <div class="stat">
+            <span class="stat-number">1000+</span>
+            <span class="stat-label">Icons</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">4</span>
+            <span class="stat-label">Categories</span>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <!-- 
             ========================================
             🚨 新しいカテゴリを追加する場合はここに追加 🚨
             ========================================
-            
-            手順:
-            1. cp -r template/ [カテゴリ名]/ でテンプレートをコピー
-            2. 下記の <a> タグをコピーして新しいカテゴリ情報に変更
-            3. CSS も追加が必要（下記の例を参考）
             
             例: Azure カテゴリを追加する場合
             <a href="./azure/" class="platform-card azure">
@@ -337,104 +356,110 @@
                     <span class="visit-button">探索する →</span>
                 </div>
             </a>
-            
-            ＋ CSS追加（<style>タグ内）:
-            .azure::before { background: #0078d4; }
-            .azure .platform-icon { background: linear-gradient(135deg, #0078d4, #106ebe); }
             ========================================
             -->
-            <div class="platforms-grid">
-                <a href="./gcp/" class="platform-card gcp">
-                    <div class="platform-icon">GCP</div>
-                    <h2 class="platform-name">Google Cloud Platform</h2>
-                    <p class="platform-description">
-                        Google Cloudサービスアイコン。BigQuery、Cloud Storage、Compute Engineなど。
-                    </p>
-                    <div class="platform-stats">
-                        <span class="icon-count">238+ アイコン</span>
-                        <span class="visit-button">探索する →</span>
-                    </div>
-                </a>
-                
-                <a href="./aws/" class="platform-card aws">
-                    <div class="platform-icon">AWS</div>
-                    <h2 class="platform-name">Amazon Web Services</h2>
-                    <p class="platform-description">
-                        AWSサービスアイコン。EC2、S3、Lambda、RDSなど。
-                    </p>
-                    <div class="platform-stats">
-                        <span class="icon-count">300+ アイコン</span>
-                        <span class="visit-button">探索する →</span>
-                    </div>
-                </a>
-                
-                <a href="./kubernetes/" class="platform-card kubernetes">
-                    <div class="platform-icon">K8s</div>
-                    <h2 class="platform-name">Kubernetes</h2>
-                    <p class="platform-description">
-                        Kubernetesリソースアイコン。Pod、Service、Deployment、ConfigMapなど。
-                    </p>
-                    <div class="platform-stats">
-                        <span class="icon-count">50+ アイコン</span>
-                        <span class="visit-button">探索する →</span>
-                    </div>
-                </a>
-                
-                <a href="./cncf/" class="platform-card cncf">
-                    <div class="platform-icon">CNCF</div>
-                    <h2 class="platform-name">CNCF Projects</h2>
-                    <p class="platform-description">
-                        Cloud Nativeプロジェクトアイコン。Prometheus、Envoy、Helmなど。
-                    </p>
-                    <div class="platform-stats">
-                        <span class="icon-count">197+ アイコン</span>
-                        <span class="visit-button">探索する →</span>
-                    </div>
-                </a>
-                
-                <!-- 
+        <div class="platforms-grid">
+          <a href="./gcp/" class="platform-card gcp">
+            <div class="platform-icon">GCP</div>
+            <h2 class="platform-name">Google Cloud Platform</h2>
+            <p class="platform-description">
+              Google Cloudサービスアイコン。BigQuery、Cloud Storage、Compute
+              Engineなど。
+            </p>
+            <div class="platform-stats">
+              <span class="icon-count">238+ アイコン</span>
+              <span class="visit-button">探索する →</span>
+            </div>
+          </a>
+
+          <a href="./aws/" class="platform-card aws">
+            <div class="platform-icon">AWS</div>
+            <h2 class="platform-name">Amazon Web Services</h2>
+            <p class="platform-description">
+              AWSサービスアイコン。EC2、S3、Lambda、RDSなど。
+            </p>
+            <div class="platform-stats">
+              <span class="icon-count">300+ アイコン</span>
+              <span class="visit-button">探索する →</span>
+            </div>
+          </a>
+
+          <a href="./kubernetes/" class="platform-card kubernetes">
+            <div class="platform-icon">K8s</div>
+            <h2 class="platform-name">Kubernetes</h2>
+            <p class="platform-description">
+              Kubernetesリソースアイコン。Pod、Service、Deployment、ConfigMapなど。
+            </p>
+            <div class="platform-stats">
+              <span class="icon-count">50+ アイコン</span>
+              <span class="visit-button">探索する →</span>
+            </div>
+          </a>
+
+          <a href="./cncf/" class="platform-card cncf">
+            <div class="platform-icon">CNCF</div>
+            <h2 class="platform-name">CNCF Projects</h2>
+            <p class="platform-description">
+              Cloud Nativeプロジェクトアイコン。Prometheus、Envoy、Helmなど。
+            </p>
+            <div class="platform-stats">
+              <span class="icon-count">197+ アイコン</span>
+              <span class="visit-button">探索する →</span>
+            </div>
+          </a>
+
+          <a href="./logo/" class="platform-card logo">
+            <div class="platform-icon">LOGO</div>
+            <h2 class="platform-name">LOGO</h2>
+            <p class="platform-description">各社のロゴ</p>
+            <div class="platform-stats">
+              <span class="icon-count">100+ アイコン</span>
+              <span class="visit-button">探索する →</span>
+            </div>
+          </a>
+
+          <!-- 
                 ========================================
                 🚨 新しいカテゴリカードはここより上に追加 🚨
                 ========================================
                 上記のCNCFカードをコピー＆ペーストして編集してください
                 -->
+        </div>
+
+        <section class="features">
+          <h2>特徴</h2>
+          <div class="features-grid">
+            <div class="feature">
+              <div class="feature-icon">📋</div>
+              <h3>簡単コピー</h3>
+              <p>ワンクリックでアイコンのURLをクリップボードにコピー。</p>
             </div>
-            
-            <section class="features">
-                <h2>特徴</h2>
-                <div class="features-grid">
-                    <div class="feature">
-                        <div class="feature-icon">📋</div>
-                        <h3>簡単コピー</h3>
-                        <p>ワンクリックでアイコンのURLをクリップボードにコピー。</p>
-                    </div>
-                    
-                    <div class="feature">
-                        <div class="feature-icon">💾</div>
-                        <h3>高品質ダウンロード</h3>
-                        <p>高解像度PNGファイルを直接ダウンロード。</p>
-                    </div>
-                    
-                    <div class="feature">
-                        <div class="feature-icon">🔄</div>
-                        <h3>自動更新</h3>
-                        <p>新しいアイコンが追加されると自動的にサイトに反映。</p>
-                    </div>
-                    
-                    <div class="feature">
-                        <div class="feature-icon">📱</div>
-                        <h3>レスポンシブ対応</h3>
-                        <p>あらゆるデバイスで利用可能。</p>
-                    </div>
-                </div>
-            </section>
-        </main>
-        
-        <footer>
-            <p>🤖 Icons Factory</p>
-            <p>個人利用向けアイコンコレクション</p>
-        </footer>
+
+            <div class="feature">
+              <div class="feature-icon">💾</div>
+              <h3>高品質ダウンロード</h3>
+              <p>高解像度PNGファイルを直接ダウンロード。</p>
+            </div>
+
+            <div class="feature">
+              <div class="feature-icon">🔄</div>
+              <h3>自動更新</h3>
+              <p>新しいアイコンが追加されると自動的にサイトに反映。</p>
+            </div>
+
+            <div class="feature">
+              <div class="feature-icon">📱</div>
+              <h3>レスポンシブ対応</h3>
+              <p>あらゆるデバイスで利用可能。</p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <p>🤖 Icons Factory</p>
+        <p>個人利用向けアイコンコレクション</p>
+      </footer>
     </div>
-    
-</body>
+  </body>
 </html>
