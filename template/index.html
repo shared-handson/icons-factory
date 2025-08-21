@@ -243,21 +243,13 @@
             document.title = `${displayName} Icons - Icons Factory`;
         }
 
-        // GitHub Pagesのベースパス設定
+        // アイコンファイルのURL
         const getIconUrl = (filename) => {
-            const currentPath = window.location.pathname;
-            if (currentPath.includes('/icons-factory/')) {
-                return `https://raw.githubusercontent.com/${window.location.hostname.split('.')[0]}/icons-factory/main/${folderName}/${filename}`;
-            }
             return `./${filename}`;
         };
 
         // アイコンリストJSONのURL
         const getIconListUrl = () => {
-            const currentPath = window.location.pathname;
-            if (currentPath.includes('/icons-factory/')) {
-                return `https://raw.githubusercontent.com/${window.location.hostname.split('.')[0]}/icons-factory/main/${folderName}/icons.json`;
-            }
             return './icons.json';
         };
 
