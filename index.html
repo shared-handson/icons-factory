@@ -166,6 +166,7 @@
         }
         
         /* プラットフォーム固有のカラー */
+        /* 🚨 新しいカテゴリを追加する場合は下記の形式でCSS追加 🚨 */
         .gcp::before { background: #4285f4; }
         .gcp .platform-icon { background: linear-gradient(135deg, #4285f4, #3367d6); }
         
@@ -177,6 +178,11 @@
         
         .cncf::before { background: #437cdb; }
         .cncf .platform-icon { background: linear-gradient(135deg, #437cdb, #3366cc); }
+        
+        /* 例: Azure カテゴリを追加する場合
+        .azure::before { background: #0078d4; }
+        .azure .platform-icon { background: linear-gradient(135deg, #0078d4, #106ebe); }
+        */
         
         .features {
             background: white;
@@ -309,6 +315,34 @@
         </header>
         
         <main>
+            <!-- 
+            ========================================
+            🚨 新しいカテゴリを追加する場合はここに追加 🚨
+            ========================================
+            
+            手順:
+            1. cp -r template/ [カテゴリ名]/ でテンプレートをコピー
+            2. 下記の <a> タグをコピーして新しいカテゴリ情報に変更
+            3. CSS も追加が必要（下記の例を参考）
+            
+            例: Azure カテゴリを追加する場合
+            <a href="./azure/" class="platform-card azure">
+                <div class="platform-icon">AZ</div>
+                <h2 class="platform-name">Microsoft Azure</h2>
+                <p class="platform-description">
+                    Azure サービスの公式アイコンコレクション
+                </p>
+                <div class="platform-stats">
+                    <span class="icon-count">100+ アイコン</span>
+                    <span class="visit-button">探索する →</span>
+                </div>
+            </a>
+            
+            ＋ CSS追加（<style>タグ内）:
+            .azure::before { background: #0078d4; }
+            .azure .platform-icon { background: linear-gradient(135deg, #0078d4, #106ebe); }
+            ========================================
+            -->
             <div class="platforms-grid">
                 <a href="./gcp/" class="platform-card gcp">
                     <div class="platform-icon">GCP</div>
@@ -357,6 +391,13 @@
                         <span class="visit-button">探索する →</span>
                     </div>
                 </a>
+                
+                <!-- 
+                ========================================
+                🚨 新しいカテゴリカードはここより上に追加 🚨
+                ========================================
+                上記のCNCFカードをコピー＆ペーストして編集してください
+                -->
             </div>
             
             <section class="features">
