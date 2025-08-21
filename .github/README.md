@@ -1,16 +1,16 @@
 # Icons Factory
 
-開発・インフラで使うアイコンを集めたドキュメントサイト
+開発・インフラで使うアイコンを集めたプライベートドキュメントサイト
 
-![GitHub Pages](https://img.shields.io/github/deployments/icons-factory/icons-factory/github-pages?label=GitHub%20Pages)
+![GitHub Pages](https://img.shields.io/github/deployments/shared-handson/icons-factory/github-pages?label=GitHub%20Pages)
 ![Icons Count](https://img.shields.io/badge/icons-1000+-blue)
-![License](https://img.shields.io/badge/license-Free%20to%20Use-green)
+![Privacy](https://img.shields.io/badge/privacy-Private%20Use-red)
 
 ## 🌟 概要
 
-作図やプレゼンテーションで使える高品質なアイコンギャラリーです。GitHub Pagesで公開し、ワンクリックでアイコンのURLコピーやダウンロードが可能です。
+個人・身内利用向けの高品質なアイコンギャラリーです。GitHub Pagesで公開し、ワンクリックでアイコンのURLコピーやダウンロードが可能です。検索エンジンからは隠蔽されています。
 
-**🔗 サイトURL**: https://icons-factory.github.io/icons-factory/
+**🔗 サイトURL**: https://shared-handson.github.io/icons-factory/
 
 ## 📦 アイコンカテゴリ
 
@@ -25,11 +25,12 @@
 
 - **🚀 高速**: GitHub Pages + 静的サイト生成
 - **📋 簡単コピー**: ワンクリックでURL取得
-- **💾 直接ダウンロード**: 高解像度PNG画像
+- **💾 強制ダウンロード**: 高解像度PNG画像（ブラウザ表示なし）
 - **🔄 自動更新**: GitHub Actions による動的管理
 - **📱 レスポンシブ**: モバイル対応UI
 - **🚫 ハードコーディングなし**: 完全動的なアイコン管理
 - **🎯 拡張可能**: 新しいカテゴリを簡単に追加可能
+- **🔒 プライベート**: 検索エンジンからの隠蔽設定済み
 
 ## 🏗️ 技術構成
 
@@ -93,16 +94,21 @@ npx serve
 ```
 
 ### GitHub Actions
-#### SVG→PNG変換ワークフロー
+#### 1. SVG→PNG変換ワークフロー (`convert-svg-to-png.yml`)
 - **トリガー**: `*/*.svg`ファイルの変更を検知
 - **処理**: Inkscapeで512x512pxのPNGに変換
 - **クリーンアップ**: 変換成功後に元SVGファイルを自動削除
-- **DRY原則**: 共通の除外ロジック関数使用
+- **DRY原則**: 共通の除外ロジック関数 `should_skip_folder()` 使用
 
-#### アイコンリスト生成ワークフロー
+#### 2. アイコンリスト生成ワークフロー (`generate-icon-list.yml`)
 - **トリガー**: `*/*.png`ファイルの変更を検知
 - **処理**: 全フォルダをスキャンしてicons.jsonを生成（PNGのみ対象）
-- **デプロイ**: GitHub Pagesに自動公開
+- **DRY原則**: SVG変換ワークフローと共通の除外ロジック使用
+
+#### 3. GitHub Pagesデプロイワークフロー (`deploy-pages.yml`)
+- **トリガー**: mainブランチへのプッシュ
+- **処理**: 静的サイトの自動デプロイ
+- **通知**: デプロイ完了の自動通知
 
 ## 📂 ディレクトリ構造
 
@@ -149,9 +155,23 @@ icons-factory/
 4. **Push** to branch (`git push origin feature/amazing-feature`)
 5. **Pull Request** を作成
 
+## 🔒 プライバシー・SEO設定
+
+### 検索エンジン対策（プライベート利用向け）
+- **robots.txt**: 全ページアクセス禁止 (`Disallow: /`)
+- **メタタグ**: `noindex, nofollow, noarchive, nosnippet` 設定
+- **SEOメタ情報**: description、keywords、og:、twitterタグなし
+- **sitemap.xml**: 存在しない（検索エンジンに構造を教えない）
+
+### プライベート利用向け設計
+- 検索エンジンに発見されない設定
+- 外部サービス連携なし
+- マーケティング要素なし
+
 ## 📝 ライセンス
 
-各アイコンは元のライセンスに従います。
+個人・身内利用向けのプライベートプロジェクト
+- 各アイコンは元のライセンスに従います
 - 個人・商用利用可能なアイコンのみを収集
 - 詳細は各プラットフォームの公式サイトをご確認ください
 
