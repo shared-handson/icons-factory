@@ -243,9 +243,15 @@
             document.title = `${displayName} Icons - Icons Factory`;
         }
 
-        // アイコンファイルのURL
-        const getIconUrl = (filename) => {
+        // アイコンファイルの表示用URL（相対パス）
+        const getIconDisplayUrl = (filename) => {
             return `./${filename}`;
+        };
+
+        // URLコピー用の絶対URL
+        const getIconCopyUrl = (filename) => {
+            const baseUrl = window.location.origin + window.location.pathname.replace(/\/$/, '');
+            return `${baseUrl}/${filename}`;
         };
 
         // アイコンリストJSONのURL
@@ -270,7 +276,7 @@
 
         // URLコピー機能
         async function copyUrl(filename) {
-            const url = getIconUrl(filename);
+            const url = getIconCopyUrl(filename);
             try {
                 await navigator.clipboard.writeText(url);
                 showToast('URLをコピーしました');
@@ -377,7 +383,7 @@
                 iconName = highlightText(iconName, searchQuery);
             }
             
-            const iconUrl = getIconUrl(filename);
+            const iconUrl = getIconDisplayUrl(filename);
             
             return `
                 <div class="icon-card">
