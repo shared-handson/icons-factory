@@ -73,46 +73,26 @@ jobs:
                     # Inkscapeを使用してSVGをPNGに変換（長辺512px・アスペクト比維持）
                     # SVGの寸法を取得
                     svg_info=$(inkscape --query-all "$svg_file" | head -1)
-                    width=$(echo "$svg_info" | cut -d',' -f3)
-                    height=$(echo "$svg_info" | cut -d',' -f4)
+                    width=$(echo "$svg_info" | cut -d',' -f4)
+                    height=$(echo "$svg_info" | cut -d',' -f5)
                     
-                    # 長辺を判定してスケール計算（縮小のみ）
+                    # 長辺を512pxに統一（拡大縮小問わず）
                     if (( $(echo "$width > $height" | bc -l) )); then
-                      # 幅が長い場合
-                      if (( $(echo "$width > 512" | bc -l) )); then
-                        # 幅が512pxより大きい場合のみ縮小
-                        inkscape --export-type=png \
-                                 --export-width=512 \
-                                 --export-area-page \
-                                 --export-background-opacity=0 \
-                                 --export-filename="$png_file" \
-                                 "$svg_file"
-                      else
-                        # 幅が512px以下の場合は元サイズを保持
-                        inkscape --export-type=png \
-                                 --export-area-page \
-                                 --export-background-opacity=0 \
-                                 --export-filename="$png_file" \
-                                 "$svg_file"
-                      fi
+                      # 幅が長い場合、幅を512pxに
+                      inkscape --export-type=png \
+                               --export-width=512 \
+                               --export-area-page \
+                               --export-background-opacity=0 \
+                               --export-filename="$png_file" \
+                               "$svg_file"
                     else
-                      # 高さが長い場合
-                      if (( $(echo "$height > 512" | bc -l) )); then
-                        # 高さが512pxより大きい場合のみ縮小
-                        inkscape --export-type=png \
-                                 --export-height=512 \
-                                 --export-area-page \
-                                 --export-background-opacity=0 \
-                                 --export-filename="$png_file" \
-                                 "$svg_file"
-                      else
-                        # 高さが512px以下の場合は元サイズを保持
-                        inkscape --export-type=png \
-                                 --export-area-page \
-                                 --export-background-opacity=0 \
-                                 --export-filename="$png_file" \
-                                 "$svg_file"
-                      fi
+                      # 高さが長い場合、高さを512pxに
+                      inkscape --export-type=png \
+                               --export-height=512 \
+                               --export-area-page \
+                               --export-background-opacity=0 \
+                               --export-filename="$png_file" \
+                               "$svg_file"
                     fi
                     
                     if [ $? -eq 0 ]; then
