@@ -54,22 +54,19 @@ jobs:
             local base_name="${filename%.*}"
             local extension="${filename##*.}"
             
-            # 1. 小文字に変換
-            base_name=$(echo "$base_name" | tr '[:upper:]' '[:lower:]')
-            
-            # 2. スペースをアンダースコアに変換
+            # 1. スペースをアンダースコアに変換
             base_name=$(echo "$base_name" | tr ' ' '_')
             
-            # 3. URL安全でない文字をハイフンに変換
-            base_name=$(echo "$base_name" | sed 's/[^a-z0-9_-]/-/g')
+            # 2. URL安全でない文字をハイフンに変換
+            base_name=$(echo "$base_name" | sed 's/[^a-zA-Z0-9_-]/-/g')
             
-            # 4. 連続するハイフンやアンダースコアを単一に変換
+            # 3. 連続するハイフンやアンダースコアを単一に変換
             base_name=$(echo "$base_name" | sed 's/[-_]\+/-/g')
             
-            # 5. 先頭と末尾のハイフンを削除
+            # 4. 先頭と末尾のハイフンを削除
             base_name=$(echo "$base_name" | sed 's/^-\+//g' | sed 's/-\+$//g')
             
-            # 6. 空の場合はデフォルト名を使用
+            # 5. 空の場合はデフォルト名を使用
             if [ -z "$base_name" ]; then
               base_name="icon"
             fi
@@ -347,7 +344,7 @@ jobs:
           # デプロイ準備処理関数
           prepare_deployment_files() {
             # 1. templateからindex.htmlをコピー（デプロイ用のみ）
-            cp template/index.html index.html
+            cp ../template/index.html index.html
             
             if [ $? -eq 0 ]; then
               echo "✅ Prepared index.html for $folder_name"
