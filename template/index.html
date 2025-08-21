@@ -116,10 +116,117 @@
             padding: 40px;
             color: #666;
         }
+        
+        /* 検索機能のスタイル */
+        .search-container {
+            max-width: 500px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+        
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            background: white;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            border-color: #4285f4;
+            box-shadow: 0 2px 8px rgba(66, 133, 244, 0.2);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            font-size: 16px;
+            color: #666;
+            pointer-events: none;
+        }
+        
+        .search-clear {
+            position: absolute;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #999;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .search-clear.visible {
+            opacity: 1;
+        }
+        
+        .search-clear:hover {
+            color: #666;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .no-results-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        .search-stats {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        /* 検索ハイライト */
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .search-input {
+                font-size: 16px; /* iOSでズームを防ぐ */
+            }
+        }
     </style>
 </head>
 <body>
     <h1 id="page-title">Icons</h1>
+    
+    <!-- 検索機能 -->
+    <div class="search-container">
+        <div class="search-box">
+            <input 
+                type="text" 
+                id="category-search" 
+                class="search-input" 
+                placeholder="アイコンを検索..."
+                autocomplete="off"
+            >
+            <div class="search-icon">🔍</div>
+            <button id="search-clear" class="search-clear">×</button>
+        </div>
+    </div>
+    
+    <div id="search-stats" class="search-stats" style="display: none;"></div>
     <div id="loading" class="loading">アイコンを読み込み中...</div>
     <div id="icons-container" class="icons-grid"></div>
     
@@ -213,14 +320,76 @@
             }
         }
 
-        // アイコンカードを動的に生成
-        function createIconCard(filename) {
-            const iconName = filename.replace('.png', '').replace(/-/g, ' ');
+
+        // 検索機能変数
+        let allIcons = [];
+        let searchTimeout;
+        
+        // 検索実行
+        function performSearch(query) {
+            const normalizedQuery = query.toLowerCase().trim();
+            
+            if (!normalizedQuery) {
+                displayIcons(allIcons);
+                updateSearchStats(allIcons.length, allIcons.length);
+                return;
+            }
+            
+            const filteredIcons = allIcons.filter(filename => {
+                const iconName = filename.replace('.png', '').toLowerCase();
+                return iconName.includes(normalizedQuery);
+            });
+            
+            displayIcons(filteredIcons, normalizedQuery);
+            updateSearchStats(filteredIcons.length, allIcons.length);
+        }
+        
+        // アイコン表示
+        function displayIcons(icons, searchQuery = '') {
+            const iconsContainer = document.getElementById('icons-container');
+            
+            if (icons.length === 0 && searchQuery) {
+                iconsContainer.innerHTML = `
+                    <div class="no-results">
+                        <div class="no-results-icon">🔍</div>
+                        <div>「${escapeHtml(searchQuery)}」にマッチするアイコンが見つかりません</div>
+                    </div>
+                `;
+            } else if (icons.length === 0) {
+                iconsContainer.innerHTML = '<p style="text-align: center; color: #666;">アイコンが見つかりませんでした</p>';
+            } else {
+                const iconsHtml = icons.map(filename => createIconCard(filename, searchQuery)).join('');
+                iconsContainer.innerHTML = iconsHtml;
+            }
+        }
+        
+        // 検索統計更新
+        function updateSearchStats(filteredCount, totalCount) {
+            const searchStats = document.getElementById('search-stats');
+            const searchInput = document.getElementById('category-search');
+            
+            if (searchInput.value.trim()) {
+                searchStats.textContent = `${totalCount}件中 ${filteredCount}件を表示`;
+                searchStats.style.display = 'block';
+            } else {
+                searchStats.style.display = 'none';
+            }
+        }
+        
+        // アイコンカードを動的に生成（ハイライト付き）
+        function createIconCard(filename, searchQuery = '') {
+            let iconName = filename.replace('.png', '').replace(/-/g, ' ');
+            
+            // 検索クエリがある場合はハイライト
+            if (searchQuery) {
+                iconName = highlightText(iconName, searchQuery);
+            }
+            
             const iconUrl = getIconUrl(filename);
             
             return `
                 <div class="icon-card">
-                    <img src="${iconUrl}" alt="${iconName}" class="icon-image" 
+                    <img src="${iconUrl}" alt="${filename.replace('.png', '')}" class="icon-image" 
                          onerror="this.style.display='none'">
                     <div class="icon-name">${iconName}</div>
                     <div class="button-group">
@@ -234,8 +403,26 @@
                 </div>
             `;
         }
-
-        // アイコンリストを読み込み
+        
+        // テキストハイライト
+        function highlightText(text, query) {
+            if (!query.trim()) return escapeHtml(text);
+            
+            const escapedText = escapeHtml(text);
+            const escapedQuery = escapeHtml(query);
+            const regex = new RegExp(`(${escapedQuery})`, 'gi');
+            
+            return escapedText.replace(regex, '<span class="highlight">$1</span>');
+        }
+        
+        // HTMLエスケープ
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // アイコンリストを読み込み（検索対応版）
         async function loadIconList() {
             const iconsContainer = document.getElementById('icons-container');
             const loading = document.getElementById('loading');
@@ -248,13 +435,12 @@
                 }
                 
                 const data = await response.json();
-                const icons = data.icons || [];
+                allIcons = data.icons || [];
                 
-                if (icons.length > 0) {
-                    // アイコンカードを生成
-                    const iconsHtml = icons.map(createIconCard).join('');
-                    iconsContainer.innerHTML = iconsHtml;
-                    showToast(`${icons.length}個のアイコンを読み込みました`);
+                if (allIcons.length > 0) {
+                    displayIcons(allIcons);
+                    updateSearchStats(allIcons.length, allIcons.length);
+                    showToast(`${allIcons.length}個のアイコンを読み込みました`);
                 } else {
                     iconsContainer.innerHTML = '<p style="text-align: center; color: #666;">アイコンが見つかりませんでした</p>';
                 }
@@ -268,10 +454,43 @@
                 loading.style.display = 'none';
             }
         }
-
+        
         // ページ読み込み時の初期化
         document.addEventListener('DOMContentLoaded', function() {
             loadIconList();
+            
+            const searchInput = document.getElementById('category-search');
+            const clearButton = document.getElementById('search-clear');
+            
+            // リアルタイム検索
+            searchInput.addEventListener('input', function(e) {
+                const query = e.target.value;
+                
+                // クリアボタンの表示/非表示
+                clearButton.classList.toggle('visible', query.length > 0);
+                
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    performSearch(query);
+                }, 300);
+            });
+            
+            // クリアボタン
+            clearButton.addEventListener('click', function() {
+                searchInput.value = '';
+                clearButton.classList.remove('visible');
+                performSearch('');
+                searchInput.focus();
+            });
+            
+            // ESCキーで検索クリア
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    searchInput.value = '';
+                    clearButton.classList.remove('visible');
+                    performSearch('');
+                }
+            });
         });
     </script>
 </body>

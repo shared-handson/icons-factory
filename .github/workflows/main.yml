@@ -1,0 +1,485 @@
+name: Build and Deploy Icons Factory
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# GitHub Pagesに必要な権限設定
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+  actions: read
+
+# 同じ種類のワークフローが複数実行されることを防ぐ
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y inkscape bc jq imagemagick
+
+      - name: Convert SVG to PNG
+        run: |
+          # 共通の除外フォルダ設定
+          EXCLUDE_FOLDERS=".git .github template"
+          converted_files=0
+          deleted_svgs=0
+
+          # 共通のフォルダ除外判定関数
+          should_skip_folder() {
+            local folder_name="$1"
+            for exclude in $EXCLUDE_FOLDERS; do
+              if [ "$folder_name" = "$exclude" ]; then
+                return 0  # skip
+              fi
+            done
+            return 1  # process
+          }
+
+          # SVGファイルを含むフォルダを検索
+          for folder in */; do
+            if [ -d "$folder" ]; then
+              folder_name=$(basename "$folder")
+              
+              # 除外フォルダをスキップ
+              if should_skip_folder "$folder_name"; then
+                continue
+              fi
+              
+              # SVGファイルが存在するかチェック
+              if ls "$folder"*.svg 1> /dev/null 2>&1; then
+                echo "Converting SVGs in: $folder_name"
+                cd "$folder"
+                
+                for svg_file in *.svg; do
+                  if [ -f "$svg_file" ]; then
+                    # ファイル名からPNG名を生成（拡張子を変更）
+                    png_file="${svg_file%.svg}.png"
+                    
+                    echo "Converting: $svg_file -> $png_file"
+                    
+                    # Inkscapeを使用してSVGをPNGに変換（長辺512px・アスペクト比維持）
+                    # SVGの寸法を取得
+                    svg_info=$(inkscape --query-all "$svg_file" | head -1)
+                    width=$(echo "$svg_info" | cut -d',' -f3)
+                    height=$(echo "$svg_info" | cut -d',' -f4)
+                    
+                    # 長辺を判定してスケール計算（縮小のみ）
+                    if (( $(echo "$width > $height" | bc -l) )); then
+                      # 幅が長い場合
+                      if (( $(echo "$width > 512" | bc -l) )); then
+                        # 幅が512pxより大きい場合のみ縮小
+                        inkscape --export-type=png \
+                                 --export-width=512 \
+                                 --export-area-page \
+                                 --export-background-opacity=0 \
+                                 --export-filename="$png_file" \
+                                 "$svg_file"
+                      else
+                        # 幅が512px以下の場合は元サイズを保持
+                        inkscape --export-type=png \
+                                 --export-area-page \
+                                 --export-background-opacity=0 \
+                                 --export-filename="$png_file" \
+                                 "$svg_file"
+                      fi
+                    else
+                      # 高さが長い場合
+                      if (( $(echo "$height > 512" | bc -l) )); then
+                        # 高さが512pxより大きい場合のみ縮小
+                        inkscape --export-type=png \
+                                 --export-height=512 \
+                                 --export-area-page \
+                                 --export-background-opacity=0 \
+                                 --export-filename="$png_file" \
+                                 "$svg_file"
+                      else
+                        # 高さが512px以下の場合は元サイズを保持
+                        inkscape --export-type=png \
+                                 --export-area-page \
+                                 --export-background-opacity=0 \
+                                 --export-filename="$png_file" \
+                                 "$svg_file"
+                      fi
+                    fi
+                    
+                    if [ $? -eq 0 ]; then
+                      echo "✅ Successfully converted: $svg_file"
+                      converted_files=$((converted_files + 1))
+                      
+                      # 変換成功後にSVGファイルを削除
+                      rm "$svg_file"
+                      if [ $? -eq 0 ]; then
+                        echo "🗑️  Deleted original SVG: $svg_file"
+                        deleted_svgs=$((deleted_svgs + 1))
+                      else
+                        echo "⚠️  Failed to delete SVG: $svg_file"
+                      fi
+                    else
+                      echo "❌ Failed to convert: $svg_file"
+                    fi
+                  fi
+                done
+                
+                cd ..
+              fi
+            fi
+          done
+
+          echo "📊 SVG Conversion Summary:"
+          echo "   - Total files converted: $converted_files"
+          echo "   - Total SVGs deleted: $deleted_svgs"
+
+      - name: Convert other image formats to PNG
+        run: |
+          # 共通の除外フォルダ設定
+          EXCLUDE_FOLDERS=".git .github template"
+          converted_files=0
+          deleted_images=0
+
+          # 共通のフォルダ除外判定関数
+          should_skip_folder() {
+            local folder_name="$1"
+            for exclude in $EXCLUDE_FOLDERS; do
+              if [ "$folder_name" = "$exclude" ]; then
+                return 0  # skip
+              fi
+            done
+            return 1  # process
+          }
+
+          # JPG/JPEG/GIFファイルを含むフォルダを検索
+          for folder in */; do
+            if [ -d "$folder" ]; then
+              folder_name=$(basename "$folder")
+              
+              # 除外フォルダをスキップ
+              if should_skip_folder "$folder_name"; then
+                continue
+              fi
+              
+              # 対象画像ファイルが存在するかチェック
+              if ls "$folder"*.jpg "$folder"*.jpeg "$folder"*.gif 1> /dev/null 2>&1; then
+                echo "Converting images in: $folder_name"
+                cd "$folder"
+                
+                # 各画像形式を処理
+                for img_file in *.jpg *.jpeg *.gif; do
+                  if [ -f "$img_file" ]; then
+                    # ファイル名からPNG名を生成（拡張子を変更）
+                    png_file="${img_file%.*}.png"
+                    
+                    echo "Converting: $img_file -> $png_file"
+                    
+                    # ImageMagickを使用して画像をPNGに変換（長辺512px・アスペクト比維持）
+                    convert "$img_file" \
+                            -resize 512x512\> \
+                            -background transparent \
+                            "$png_file"
+                    
+                    if [ $? -eq 0 ]; then
+                      echo "✅ Successfully converted: $img_file"
+                      converted_files=$((converted_files + 1))
+                      
+                      # 変換成功後に元ファイルを削除
+                      rm "$img_file"
+                      if [ $? -eq 0 ]; then
+                        echo "🗑️  Deleted original image: $img_file"
+                        deleted_images=$((deleted_images + 1))
+                      else
+                        echo "⚠️  Failed to delete image: $img_file"
+                      fi
+                    else
+                      echo "❌ Failed to convert: $img_file"
+                    fi
+                  fi
+                done
+                
+                cd ..
+              fi
+            fi
+          done
+
+          echo "📊 Image Conversion Summary:"
+          echo "   - Total files converted: $converted_files"
+          echo "   - Total images deleted: $deleted_images"
+
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          # 新しいPNGファイルをステージング
+          git add */*.png
+          
+          # 削除された元ファイル（SVG/JPG/JPEG/GIF）をステージング
+          git add -u */
+          
+          
+          # 変更があるかチェック
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "🤖 Convert images to PNG [skip ci]"
+            git push
+            echo "✅ Committed all changes"
+          fi
+
+      - name: Prepare deployment files
+        run: |
+          # 共通の除外フォルダ設定
+          EXCLUDE_FOLDERS=".git .github template"
+          updated_files=0
+          generated_json_files=0
+
+          # 共通のフォルダ除外判定関数
+          should_skip_folder() {
+            local folder_name="$1"
+            for exclude in $EXCLUDE_FOLDERS; do
+              if [ "$folder_name" = "$exclude" ]; then
+                return 0  # skip
+              fi
+            done
+            return 1  # process
+          }
+
+          # templateが存在するかチェック
+          if [ ! -f "template/index.html" ]; then
+            echo "❌ template/index.html not found"
+            exit 1
+          fi
+
+          echo "📄 Preparing deployment files..."
+
+          # PNGファイルを含むフォルダの処理（index.htmlコピー & icons.json生成）
+          for folder in */; do
+            if [ -d "$folder" ]; then
+              folder_name=$(basename "$folder")
+              
+              # 除外フォルダをスキップ
+              if should_skip_folder "$folder_name"; then
+                echo "⏭️  Skipping excluded folder: $folder_name"
+                continue
+              fi
+              
+              # PNGファイルが存在するかチェック
+              if ls "$folder"*.png 1> /dev/null 2>&1; then
+                echo "📄 Processing: $folder_name"
+                
+                # 1. templateからindex.htmlをコピー（デプロイ用のみ）
+                cp template/index.html "$folder/index.html"
+                
+                if [ $? -eq 0 ]; then
+                  echo "✅ Prepared index.html for $folder_name"
+                  updated_files=$((updated_files + 1))
+                else
+                  echo "❌ Failed to prepare index.html for $folder_name"
+                  continue
+                fi
+                
+                # 2. icons.jsonを生成（デプロイ用のみ）
+                cd "$folder"
+                
+                echo '{"icons":[' > icons.json
+                
+                # PNGファイルを処理
+                for file in *.png; do
+                  if [ -f "$file" ]; then
+                    echo "  \"$file\"," >> icons.json
+                  fi
+                done
+                
+                # 最後のカンマを削除
+                sed -i '$ s/,$//' icons.json
+                echo ']}' >> icons.json
+                
+                icon_count=$(cat icons.json | jq -r '.icons | length' 2>/dev/null || echo "unknown")
+                echo "✅ Generated icons.json for $folder_name: $icon_count icons"
+                generated_json_files=$((generated_json_files + 1))
+                
+                cd ..
+              else
+                echo "No PNG files found in: $folder_name"
+              fi
+            fi
+          done
+
+          echo "📊 Deployment Preparation Summary:"
+          echo "   - Total index.html files prepared: $updated_files"
+          echo "   - Total icons.json files generated: $generated_json_files"
+          echo "   - Files ready for GitHub Pages deployment (not committed to repository)"
+
+      - name: Generate search index
+        run: |
+          # 共通の除外フォルダ設定
+          EXCLUDE_FOLDERS=".git .github template"
+          total_icons=0
+
+          # 共通のフォルダ除外判定関数
+          should_skip_folder() {
+            local folder_name="$1"
+            for exclude in $EXCLUDE_FOLDERS; do
+              if [ "$folder_name" = "$exclude" ]; then
+                return 0  # skip
+              fi
+            done
+            return 1  # process
+          }
+
+          echo "🔍 Generating search index..."
+
+          # 検索インデックスファイルの開始
+          echo '{"icons":[' > search-index.json
+
+          # PNGファイルを含むフォルダを処理
+          for folder in */; do
+            if [ -d "$folder" ]; then
+              folder_name=$(basename "$folder")
+              
+              # 除外フォルダをスキップ
+              if should_skip_folder "$folder_name"; then
+                continue
+              fi
+              
+              # PNGファイルが存在するかチェック
+              if ls "$folder"*.png 1> /dev/null 2>&1; then
+                echo "🔍 Indexing: $folder_name"
+                cd "$folder"
+                
+                # 各PNGファイルを検索インデックスに追加
+                for file in *.png; do
+                  if [ -f "$file" ]; then
+                    # ファイル名から拡張子を除いたアイコン名を取得
+                    icon_name="${file%.png}"
+                    
+                    # JSONエントリを追加
+                    echo "  {" >> ../search-index.json
+                    echo "    \"name\": \"$icon_name\"," >> ../search-index.json
+                    echo "    \"filename\": \"$file\"," >> ../search-index.json
+                    echo "    \"category\": \"$folder_name\"," >> ../search-index.json
+                    echo "    \"path\": \"$folder_name/$file\"" >> ../search-index.json
+                    echo "  }," >> ../search-index.json
+                    
+                    total_icons=$((total_icons + 1))
+                  fi
+                done
+                
+                cd ..
+              fi
+            fi
+          done
+
+          # 最後のカンマを削除
+          sed -i '$ s/,$//' search-index.json
+          echo ']}' >> search-index.json
+
+          echo "✅ Generated search index with $total_icons icons across all categories"
+          
+          # 検索インデックスの内容を検証
+          if command -v jq > /dev/null 2>&1; then
+            icon_count=$(cat search-index.json | jq -r '.icons | length' 2>/dev/null || echo "validation failed")
+            echo "🔍 Search index validation: $icon_count icons indexed"
+          fi
+
+      - name: Generate metadata file
+        run: |
+          # 共通の除外フォルダ設定
+          EXCLUDE_FOLDERS=".git .github template"
+          
+          # 共通のフォルダ除外判定関数
+          should_skip_folder() {
+            local folder_name="$1"
+            for exclude in $EXCLUDE_FOLDERS; do
+              if [ "$folder_name" = "$exclude" ]; then
+                return 0  # skip
+              fi
+            done
+            return 1  # process
+          }
+
+          echo "📊 Generating metadata file..."
+          
+          # メタデータファイルの開始
+          echo '{' > metadata.json
+          echo '  "categories": {' >> metadata.json
+          
+          total_icons=0
+          category_count=0
+          
+          # 各カテゴリのアイコン数を計算
+          for folder in */; do
+            if [ -d "$folder" ]; then
+              folder_name=$(basename "$folder")
+              
+              # 除外フォルダをスキップ
+              if should_skip_folder "$folder_name"; then
+                continue
+              fi
+              
+              # PNGファイルが存在するかチェック
+              if ls "$folder"*.png 1> /dev/null 2>&1; then
+                icon_count=$(ls "$folder"*.png | wc -l)
+                total_icons=$((total_icons + icon_count))
+                category_count=$((category_count + 1))
+                
+                # カテゴリ情報をJSONに追加
+                if [ $category_count -gt 1 ]; then
+                  echo '    ,' >> metadata.json
+                fi
+                echo "    \"$folder_name\": {" >> metadata.json
+                echo "      \"count\": $icon_count," >> metadata.json
+                echo "      \"displayName\": \"$(echo $folder_name | tr '[:lower:]' '[:upper:]')\"" >> metadata.json
+                echo -n "    }" >> metadata.json
+                
+                echo "📊 $folder_name: $icon_count icons"
+              fi
+            fi
+          done
+          
+          # メタデータファイルの終了
+          echo '' >> metadata.json
+          echo '  },' >> metadata.json
+          echo "  \"total\": {" >> metadata.json
+          echo "    \"icons\": $total_icons," >> metadata.json
+          echo "    \"categories\": $category_count" >> metadata.json
+          echo '  },' >> metadata.json
+          echo "  \"generated\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"" >> metadata.json
+          echo '}' >> metadata.json
+          
+          echo "✅ Generated metadata file:"
+          echo "   - Total icons: $total_icons"
+          echo "   - Total categories: $category_count"
+          
+          # メタデータファイルの内容を検証
+          if command -v jq > /dev/null 2>&1; then
+            echo "🔍 Metadata validation:"
+            cat metadata.json | jq -r '.total'
+          fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        
+      - name: Deployment Success
+        if: success()
+        run: |
+          echo "✅ Icons Factory has been successfully deployed to GitHub Pages!"
+          echo "🔗 Deployment completed successfully"
