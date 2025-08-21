@@ -17,6 +17,9 @@ concurrency:
   group: "pages"
   cancel-in-progress: false
 
+env:
+  EXCLUDE_FOLDERS: ".git .github template"
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -30,13 +33,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y inkscape bc jq imagemagick
 
-      - name: Convert SVG to PNG
+      - name: Setup common functions
         run: |
-          # 共通の除外フォルダ設定
-          EXCLUDE_FOLDERS=".git .github template"
-          converted_files=0
-          deleted_svgs=0
-
+          # 共通関数をファイルに保存
+          cat << 'EOF' > /tmp/common_functions.sh
           # 共通のフォルダ除外判定関数
           should_skip_folder() {
             local folder_name="$1"
@@ -48,75 +48,129 @@ jobs:
             return 1  # process
           }
 
-          # SVGファイルを含むフォルダを検索
-          for folder in */; do
-            if [ -d "$folder" ]; then
-              folder_name=$(basename "$folder")
-              
-              # 除外フォルダをスキップ
-              if should_skip_folder "$folder_name"; then
-                continue
-              fi
-              
-              # SVGファイルが存在するかチェック
-              if ls "$folder"*.svg 1> /dev/null 2>&1; then
-                echo "Converting SVGs in: $folder_name"
-                cd "$folder"
-                
-                for svg_file in *.svg; do
-                  if [ -f "$svg_file" ]; then
-                    # ファイル名からPNG名を生成（拡張子を変更）
-                    png_file="${svg_file%.svg}.png"
-                    
-                    echo "Converting: $svg_file -> $png_file"
-                    
-                    # Inkscapeを使用してSVGをPNGに変換（長辺512px・アスペクト比維持）
-                    # SVGの寸法を取得
-                    svg_info=$(inkscape --query-all "$svg_file" | head -1)
-                    width=$(echo "$svg_info" | cut -d',' -f4)
-                    height=$(echo "$svg_info" | cut -d',' -f5)
-                    
-                    # 長辺を512pxに統一（拡大縮小問わず）
-                    if (( $(echo "$width > $height" | bc -l) )); then
-                      # 幅が長い場合、幅を512pxに
-                      inkscape --export-type=png \
-                               --export-width=512 \
-                               --export-area-page \
-                               --export-background-opacity=0 \
-                               --export-filename="$png_file" \
-                               "$svg_file"
-                    else
-                      # 高さが長い場合、高さを512pxに
-                      inkscape --export-type=png \
-                               --export-height=512 \
-                               --export-area-page \
-                               --export-background-opacity=0 \
-                               --export-filename="$png_file" \
-                               "$svg_file"
-                    fi
-                    
-                    if [ $? -eq 0 ]; then
-                      echo "✅ Successfully converted: $svg_file"
-                      converted_files=$((converted_files + 1))
-                      
-                      # 変換成功後にSVGファイルを削除
-                      rm "$svg_file"
-                      if [ $? -eq 0 ]; then
-                        echo "🗑️  Deleted original SVG: $svg_file"
-                        deleted_svgs=$((deleted_svgs + 1))
-                      else
-                        echo "⚠️  Failed to delete SVG: $svg_file"
-                      fi
-                    else
-                      echo "❌ Failed to convert: $svg_file"
-                    fi
-                  fi
-                done
-                
-                cd ..
-              fi
+          # ファイル名をURL安全な形式にサニタイズする関数
+          sanitize_filename() {
+            local filename="$1"
+            local base_name="${filename%.*}"
+            local extension="${filename##*.}"
+            
+            # 1. 小文字に変換
+            base_name=$(echo "$base_name" | tr '[:upper:]' '[:lower:]')
+            
+            # 2. スペースをアンダースコアに変換
+            base_name=$(echo "$base_name" | tr ' ' '_')
+            
+            # 3. URL安全でない文字をハイフンに変換
+            base_name=$(echo "$base_name" | sed 's/[^a-z0-9_-]/-/g')
+            
+            # 4. 連続するハイフンやアンダースコアを単一に変換
+            base_name=$(echo "$base_name" | sed 's/[-_]\+/-/g')
+            
+            # 5. 先頭と末尾のハイフンを削除
+            base_name=$(echo "$base_name" | sed 's/^-\+//g' | sed 's/-\+$//g')
+            
+            # 6. 空の場合はデフォルト名を使用
+            if [ -z "$base_name" ]; then
+              base_name="icon"
             fi
-          done
+            
+            echo "${base_name}.${extension}"
+          }
+
+          # フォルダ処理の共通パターン
+          process_folders() {
+            local file_pattern="$1"
+            local process_callback="$2"
+            
+            for folder in */; do
+              if [ -d "$folder" ]; then
+                folder_name=$(basename "$folder")
+                
+                # 除外フォルダをスキップ
+                if should_skip_folder "$folder_name"; then
+                  continue
+                fi
+                
+                # 指定されたファイルパターンが存在するかチェック
+                if ls $folder$file_pattern 1> /dev/null 2>&1; then
+                  echo "Processing $file_pattern files in: $folder_name"
+                  cd "$folder"
+                  $process_callback
+                  cd ..
+                fi
+              fi
+            done
+          }
+          EOF
+
+      - name: Convert SVG to PNG
+        run: |
+          # 共通関数を読み込み
+          source /tmp/common_functions.sh
+          converted_files=0
+          deleted_svgs=0
+
+          # SVG処理関数
+          process_svg_files() {
+            for svg_file in *.svg; do
+              if [ -f "$svg_file" ]; then
+                # ファイル名をサニタイズしてPNG名を生成
+                sanitized_name=$(sanitize_filename "$svg_file")
+                png_file="${sanitized_name%.svg}.png"
+                
+                # ファイル名が変更された場合は通知
+                if [ "$svg_file" != "$sanitized_name" ]; then
+                  echo "🔧 Sanitized filename: $svg_file -> $sanitized_name"
+                fi
+                
+                echo "Converting: $svg_file -> $png_file"
+                
+                # Inkscapeを使用してSVGをPNGに変換（長辺512px・アスペクト比維持）
+                # SVGの寸法を取得
+                svg_info=$(inkscape --query-all "$svg_file" | head -1)
+                width=$(echo "$svg_info" | cut -d',' -f4)
+                height=$(echo "$svg_info" | cut -d',' -f5)
+                
+                # 長辺を512pxに統一（拡大縮小問わず）
+                if (( $(echo "$width > $height" | bc -l) )); then
+                  # 幅が長い場合、幅を512pxに
+                  inkscape --export-type=png \
+                           --export-width=512 \
+                           --export-area-page \
+                           --export-background-opacity=0 \
+                           --export-filename="$png_file" \
+                           "$svg_file"
+                else
+                  # 高さが長い場合、高さを512pxに
+                  inkscape --export-type=png \
+                           --export-height=512 \
+                           --export-area-page \
+                           --export-background-opacity=0 \
+                           --export-filename="$png_file" \
+                           "$svg_file"
+                fi
+                
+                if [ $? -eq 0 ]; then
+                  echo "✅ Successfully converted: $svg_file"
+                  converted_files=$((converted_files + 1))
+                  
+                  # 変換成功後にSVGファイルを削除
+                  rm "$svg_file"
+                  if [ $? -eq 0 ]; then
+                    echo "🗑️  Deleted original SVG: $svg_file"
+                    deleted_svgs=$((deleted_svgs + 1))
+                  else
+                    echo "⚠️  Failed to delete SVG: $svg_file"
+                  fi
+                else
+                  echo "❌ Failed to convert: $svg_file"
+                fi
+              fi
+            done
+          }
+
+          # SVGファイル処理実行
+          process_folders "*.svg" "process_svg_files"
 
           echo "📊 SVG Conversion Summary:"
           echo "   - Total files converted: $converted_files"
@@ -124,23 +178,52 @@ jobs:
 
       - name: Convert other image formats to PNG
         run: |
-          # 共通の除外フォルダ設定
-          EXCLUDE_FOLDERS=".git .github template"
+          # 共通関数を読み込み
+          source /tmp/common_functions.sh
           converted_files=0
           deleted_images=0
 
-          # 共通のフォルダ除外判定関数
-          should_skip_folder() {
-            local folder_name="$1"
-            for exclude in $EXCLUDE_FOLDERS; do
-              if [ "$folder_name" = "$exclude" ]; then
-                return 0  # skip
+          # その他画像処理関数
+          process_other_images() {
+            for img_file in *.jpg *.jpeg *.gif; do
+              if [ -f "$img_file" ]; then
+                # ファイル名をサニタイズしてPNG名を生成
+                sanitized_name=$(sanitize_filename "$img_file")
+                png_file="${sanitized_name%.*}.png"
+                
+                # ファイル名が変更された場合は通知
+                if [ "$img_file" != "$sanitized_name" ]; then
+                  echo "🔧 Sanitized filename: $img_file -> $sanitized_name"
+                fi
+                
+                echo "Converting: $img_file -> $png_file"
+                
+                # ImageMagickを使用して画像をPNGに変換（長辺512px・アスペクト比維持）
+                convert "$img_file" \
+                        -resize 512x512\> \
+                        -background transparent \
+                        "$png_file"
+                
+                if [ $? -eq 0 ]; then
+                  echo "✅ Successfully converted: $img_file"
+                  converted_files=$((converted_files + 1))
+                  
+                  # 変換成功後に元ファイルを削除
+                  rm "$img_file"
+                  if [ $? -eq 0 ]; then
+                    echo "🗑️  Deleted original image: $img_file"
+                    deleted_images=$((deleted_images + 1))
+                  else
+                    echo "⚠️  Failed to delete image: $img_file"
+                  fi
+                else
+                  echo "❌ Failed to convert: $img_file"
+                fi
               fi
             done
-            return 1  # process
           }
 
-          # JPG/JPEG/GIFファイルを含むフォルダを検索
+          # その他画像ファイル処理実行（複数パターンのファイル）
           for folder in */; do
             if [ -d "$folder" ]; then
               folder_name=$(basename "$folder")
@@ -152,41 +235,9 @@ jobs:
               
               # 対象画像ファイルが存在するかチェック
               if ls "$folder"*.jpg "$folder"*.jpeg "$folder"*.gif 1> /dev/null 2>&1; then
-                echo "Converting images in: $folder_name"
+                echo "Processing other image files in: $folder_name"
                 cd "$folder"
-                
-                # 各画像形式を処理
-                for img_file in *.jpg *.jpeg *.gif; do
-                  if [ -f "$img_file" ]; then
-                    # ファイル名からPNG名を生成（拡張子を変更）
-                    png_file="${img_file%.*}.png"
-                    
-                    echo "Converting: $img_file -> $png_file"
-                    
-                    # ImageMagickを使用して画像をPNGに変換（長辺512px・アスペクト比維持）
-                    convert "$img_file" \
-                            -resize 512x512\> \
-                            -background transparent \
-                            "$png_file"
-                    
-                    if [ $? -eq 0 ]; then
-                      echo "✅ Successfully converted: $img_file"
-                      converted_files=$((converted_files + 1))
-                      
-                      # 変換成功後に元ファイルを削除
-                      rm "$img_file"
-                      if [ $? -eq 0 ]; then
-                        echo "🗑️  Deleted original image: $img_file"
-                        deleted_images=$((deleted_images + 1))
-                      else
-                        echo "⚠️  Failed to delete image: $img_file"
-                      fi
-                    else
-                      echo "❌ Failed to convert: $img_file"
-                    fi
-                  fi
-                done
-                
+                process_other_images
                 cd ..
               fi
             fi
@@ -196,6 +247,66 @@ jobs:
           echo "   - Total files converted: $converted_files"
           echo "   - Total images deleted: $deleted_images"
 
+      - name: Optimize PNG files
+        run: |
+          # 共通関数を読み込み
+          source /tmp/common_functions.sh
+          optimized_files=0
+
+          # PNG最適化処理関数
+          process_png_optimization() {
+            for png_file in *.png; do
+              if [ -f "$png_file" ]; then
+                # ファイル名をサニタイズ
+                sanitized_name=$(sanitize_filename "$png_file")
+                
+                # ファイル名が変更された場合はリネーム
+                if [ "$png_file" != "$sanitized_name" ]; then
+                  echo "🔧 Sanitized PNG filename: $png_file -> $sanitized_name"
+                  mv "$png_file" "$sanitized_name"
+                  png_file="$sanitized_name"
+                fi
+                
+                # 画像の寸法を取得
+                dimensions=$(identify -format "%wx%h" "$png_file" 2>/dev/null)
+                if [ $? -eq 0 ]; then
+                  width=$(echo "$dimensions" | cut -d'x' -f1)
+                  height=$(echo "$dimensions" | cut -d'x' -f2)
+                  
+                  # 長辺が512pxを超える場合は縮小
+                  max_dimension=$(( width > height ? width : height ))
+                  if [ "$max_dimension" -gt 512 ]; then
+                    echo "📏 Resizing: $png_file (${width}x${height} -> max 512px)"
+                    
+                    if [ "$width" -gt "$height" ]; then
+                      # 幅が長い場合、幅を512pxに
+                      convert "$png_file" -resize 512x "$png_file"
+                    else
+                      # 高さが長い場合、高さを512pxに
+                      convert "$png_file" -resize x512 "$png_file"
+                    fi
+                    
+                    if [ $? -eq 0 ]; then
+                      echo "✅ Successfully resized: $png_file"
+                      optimized_files=$((optimized_files + 1))
+                    else
+                      echo "❌ Failed to resize: $png_file"
+                    fi
+                  else
+                    echo "✅ PNG already optimal size: $png_file (${width}x${height})"
+                  fi
+                else
+                  echo "⚠️  Could not get dimensions for: $png_file"
+                fi
+              fi
+            done
+          }
+
+          # PNG最適化処理実行
+          process_folders "*.png" "process_png_optimization"
+
+          echo "📊 PNG Optimization Summary:"
+          echo "   - Total files optimized: $optimized_files"
 
       - name: Commit changes
         run: |
@@ -220,21 +331,10 @@ jobs:
 
       - name: Prepare deployment files
         run: |
-          # 共通の除外フォルダ設定
-          EXCLUDE_FOLDERS=".git .github template"
+          # 共通関数を読み込み
+          source /tmp/common_functions.sh
           updated_files=0
           generated_json_files=0
-
-          # 共通のフォルダ除外判定関数
-          should_skip_folder() {
-            local folder_name="$1"
-            for exclude in $EXCLUDE_FOLDERS; do
-              if [ "$folder_name" = "$exclude" ]; then
-                return 0  # skip
-              fi
-            done
-            return 1  # process
-          }
 
           # templateが存在するかチェック
           if [ ! -f "template/index.html" ]; then
@@ -244,58 +344,40 @@ jobs:
 
           echo "📄 Preparing deployment files..."
 
-          # PNGファイルを含むフォルダの処理（index.htmlコピー & icons.json生成）
-          for folder in */; do
-            if [ -d "$folder" ]; then
-              folder_name=$(basename "$folder")
-              
-              # 除外フォルダをスキップ
-              if should_skip_folder "$folder_name"; then
-                echo "⏭️  Skipping excluded folder: $folder_name"
-                continue
-              fi
-              
-              # PNGファイルが存在するかチェック
-              if ls "$folder"*.png 1> /dev/null 2>&1; then
-                echo "📄 Processing: $folder_name"
-                
-                # 1. templateからindex.htmlをコピー（デプロイ用のみ）
-                cp template/index.html "$folder/index.html"
-                
-                if [ $? -eq 0 ]; then
-                  echo "✅ Prepared index.html for $folder_name"
-                  updated_files=$((updated_files + 1))
-                else
-                  echo "❌ Failed to prepare index.html for $folder_name"
-                  continue
-                fi
-                
-                # 2. icons.jsonを生成（デプロイ用のみ）
-                cd "$folder"
-                
-                echo '{"icons":[' > icons.json
-                
-                # PNGファイルを処理
-                for file in *.png; do
-                  if [ -f "$file" ]; then
-                    echo "  \"$file\"," >> icons.json
-                  fi
-                done
-                
-                # 最後のカンマを削除
-                sed -i '$ s/,$//' icons.json
-                echo ']}' >> icons.json
-                
-                icon_count=$(cat icons.json | jq -r '.icons | length' 2>/dev/null || echo "unknown")
-                echo "✅ Generated icons.json for $folder_name: $icon_count icons"
-                generated_json_files=$((generated_json_files + 1))
-                
-                cd ..
-              else
-                echo "No PNG files found in: $folder_name"
-              fi
+          # デプロイ準備処理関数
+          prepare_deployment_files() {
+            # 1. templateからindex.htmlをコピー（デプロイ用のみ）
+            cp template/index.html index.html
+            
+            if [ $? -eq 0 ]; then
+              echo "✅ Prepared index.html for $folder_name"
+              updated_files=$((updated_files + 1))
+            else
+              echo "❌ Failed to prepare index.html for $folder_name"
+              return
             fi
-          done
+            
+            # 2. icons.jsonを生成（デプロイ用のみ）
+            echo '{"icons":[' > icons.json
+            
+            # PNGファイルを処理
+            for file in *.png; do
+              if [ -f "$file" ]; then
+                echo "  \"$file\"," >> icons.json
+              fi
+            done
+            
+            # 最後のカンマを削除
+            sed -i '$ s/,$//' icons.json
+            echo ']}' >> icons.json
+            
+            icon_count=$(cat icons.json | jq -r '.icons | length' 2>/dev/null || echo "unknown")
+            echo "✅ Generated icons.json for $folder_name: $icon_count icons"
+            generated_json_files=$((generated_json_files + 1))
+          }
+
+          # PNGファイルを含むフォルダの処理実行
+          process_folders "*.png" "prepare_deployment_files"
 
           echo "📊 Deployment Preparation Summary:"
           echo "   - Total index.html files prepared: $updated_files"
@@ -304,63 +386,38 @@ jobs:
 
       - name: Generate search index
         run: |
-          # 共通の除外フォルダ設定
-          EXCLUDE_FOLDERS=".git .github template"
+          # 共通関数を読み込み
+          source /tmp/common_functions.sh
           total_icons=0
-
-          # 共通のフォルダ除外判定関数
-          should_skip_folder() {
-            local folder_name="$1"
-            for exclude in $EXCLUDE_FOLDERS; do
-              if [ "$folder_name" = "$exclude" ]; then
-                return 0  # skip
-              fi
-            done
-            return 1  # process
-          }
 
           echo "🔍 Generating search index..."
 
           # 検索インデックスファイルの開始
           echo '{"icons":[' > search-index.json
 
-          # PNGファイルを含むフォルダを処理
-          for folder in */; do
-            if [ -d "$folder" ]; then
-              folder_name=$(basename "$folder")
-              
-              # 除外フォルダをスキップ
-              if should_skip_folder "$folder_name"; then
-                continue
-              fi
-              
-              # PNGファイルが存在するかチェック
-              if ls "$folder"*.png 1> /dev/null 2>&1; then
-                echo "🔍 Indexing: $folder_name"
-                cd "$folder"
+          # 検索インデックス生成関数
+          generate_search_entries() {
+            # 各PNGファイルを検索インデックスに追加
+            for file in *.png; do
+              if [ -f "$file" ]; then
+                # ファイル名から拡張子を除いたアイコン名を取得
+                icon_name="${file%.png}"
                 
-                # 各PNGファイルを検索インデックスに追加
-                for file in *.png; do
-                  if [ -f "$file" ]; then
-                    # ファイル名から拡張子を除いたアイコン名を取得
-                    icon_name="${file%.png}"
-                    
-                    # JSONエントリを追加
-                    echo "  {" >> ../search-index.json
-                    echo "    \"name\": \"$icon_name\"," >> ../search-index.json
-                    echo "    \"filename\": \"$file\"," >> ../search-index.json
-                    echo "    \"category\": \"$folder_name\"," >> ../search-index.json
-                    echo "    \"path\": \"$folder_name/$file\"" >> ../search-index.json
-                    echo "  }," >> ../search-index.json
-                    
-                    total_icons=$((total_icons + 1))
-                  fi
-                done
+                # JSONエントリを追加
+                echo "  {" >> ../search-index.json
+                echo "    \"name\": \"$icon_name\"," >> ../search-index.json
+                echo "    \"filename\": \"$file\"," >> ../search-index.json
+                echo "    \"category\": \"$folder_name\"," >> ../search-index.json
+                echo "    \"path\": \"$folder_name/$file\"" >> ../search-index.json
+                echo "  }," >> ../search-index.json
                 
-                cd ..
+                total_icons=$((total_icons + 1))
               fi
-            fi
-          done
+            done
+          }
+
+          # 検索インデックス生成処理実行
+          process_folders "*.png" "generate_search_entries"
 
           # 最後のカンマを削除
           sed -i '$ s/,$//' search-index.json
@@ -376,20 +433,9 @@ jobs:
 
       - name: Generate metadata file
         run: |
-          # 共通の除外フォルダ設定
-          EXCLUDE_FOLDERS=".git .github template"
+          # 共通関数を読み込み
+          source /tmp/common_functions.sh
           
-          # 共通のフォルダ除外判定関数
-          should_skip_folder() {
-            local folder_name="$1"
-            for exclude in $EXCLUDE_FOLDERS; do
-              if [ "$folder_name" = "$exclude" ]; then
-                return 0  # skip
-              fi
-            done
-            return 1  # process
-          }
-
           echo "📊 Generating metadata file..."
           
           # メタデータファイルの開始
@@ -398,58 +444,59 @@ jobs:
           
           total_icons=0
           category_count=0
-          
-          # 各カテゴリのアイコン数を計算
-          for folder in */; do
-            if [ -d "$folder" ]; then
-              folder_name=$(basename "$folder")
-              
-              # 除外フォルダをスキップ
-              if should_skip_folder "$folder_name"; then
-                continue
+
+          # メタデータ生成関数
+          generate_metadata_entry() {
+            category_icon_count=0
+            
+            # カテゴリ内のPNGファイルをカウント
+            for file in *.png; do
+              if [ -f "$file" ]; then
+                category_icon_count=$((category_icon_count + 1))
+              fi
+            done
+            
+            if [ "$category_icon_count" -gt 0 ]; then
+              if [ "$category_count" -gt 0 ]; then
+                echo "," >> ../metadata.json
               fi
               
-              # PNGファイルが存在するかチェック
-              if ls "$folder"*.png 1> /dev/null 2>&1; then
-                icon_count=$(ls "$folder"*.png | wc -l)
-                total_icons=$((total_icons + icon_count))
-                category_count=$((category_count + 1))
-                
-                # カテゴリ情報をJSONに追加
-                if [ $category_count -gt 1 ]; then
-                  echo '    ,' >> metadata.json
-                fi
-                echo "    \"$folder_name\": {" >> metadata.json
-                echo "      \"count\": $icon_count," >> metadata.json
-                echo "      \"displayName\": \"$(echo $folder_name | tr '[:lower:]' '[:upper:]')\"" >> metadata.json
-                echo -n "    }" >> metadata.json
-                
-                echo "📊 $folder_name: $icon_count icons"
-              fi
+              echo "    \"$folder_name\": {" >> ../metadata.json
+              echo "      \"count\": $category_icon_count," >> ../metadata.json
+              echo "      \"name\": \"$(echo $folder_name | tr '[:lower:]' '[:upper:]')\"" >> ../metadata.json
+              echo "    }" >> ../metadata.json
+              
+              total_icons=$((total_icons + category_icon_count))
+              category_count=$((category_count + 1))
             fi
-          done
+          }
+
+          # メタデータ生成処理実行
+          process_folders "*.png" "generate_metadata_entry"
           
           # メタデータファイルの終了
           echo '' >> metadata.json
           echo '  },' >> metadata.json
-          echo "  \"total\": {" >> metadata.json
-          echo "    \"icons\": $total_icons," >> metadata.json
-          echo "    \"categories\": $category_count" >> metadata.json
-          echo '  },' >> metadata.json
-          echo "  \"generated\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"" >> metadata.json
+          echo "  \"total_icons\": $total_icons," >> metadata.json
+          echo "  \"total_categories\": $category_count," >> metadata.json
+          echo "  \"generated_at\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"" >> metadata.json
           echo '}' >> metadata.json
+
+          echo "✅ Generated metadata: $category_count categories, $total_icons total icons"
           
-          echo "✅ Generated metadata file:"
-          echo "   - Total icons: $total_icons"
-          echo "   - Total categories: $category_count"
-          
-          # メタデータファイルの内容を検証
+          # メタデータの内容を検証
           if command -v jq > /dev/null 2>&1; then
-            echo "🔍 Metadata validation:"
-            cat metadata.json | jq -r '.total'
+            if jq . metadata.json > /dev/null 2>&1; then
+              echo "📊 Metadata validation: Valid JSON"
+            else
+              echo "❌ Metadata validation: Invalid JSON"
+            fi
           fi
 
-      - name: Upload Pages artifact
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: '.'
@@ -457,9 +504,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-        
-      - name: Deployment Success
-        if: success()
-        run: |
-          echo "✅ Icons Factory has been successfully deployed to GitHub Pages!"
-          echo "🔗 Deployment completed successfully"

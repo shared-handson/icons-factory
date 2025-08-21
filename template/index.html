@@ -1,405 +1,431 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
     <title>Icons - Icons Factory</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-        }
-        
-        .icons-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            margin: 20px 0;
-        }
-        
-        .icon-card {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-        }
-        
-        .icon-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-        }
-        
-        .icon-image {
-            max-width: 64px;
-            max-height: 64px;
-            width: auto;
-            height: auto;
-            margin: 0 auto 15px;
-            display: block;
-            object-fit: contain;
-        }
-        
-        .icon-name {
-            text-align: center;
-            font-weight: 500;
-            margin-bottom: 8px;
-            color: #333;
-            word-break: break-word;
-        }
-        
-        .icon-size {
-            text-align: center;
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 15px;
-        }
-        
-        .button-group {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-        }
-        
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.2s;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-        
-        .btn-copy {
-            background-color: #4285f4;
-            color: white;
-        }
-        
-        .btn-copy:hover {
-            background-color: #3367d6;
-        }
-        
-        .btn-download {
-            background-color: #34a853;
-            color: white;
-        }
-        
-        .btn-download:hover {
-            background-color: #137333;
-        }
-        
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #333;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 4px;
-            opacity: 0;
-            transform: translateY(100%);
-            transition: all 0.3s;
-            z-index: 1000;
-        }
-        
-        .toast.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        }
-        
-        /* 検索機能のスタイル */
-        .search-container {
-            max-width: 500px;
-            margin: 0 auto 30px;
-            position: relative;
-        }
-        
-        .search-box {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-        
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: white;
+      }
+
+      h1 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 30px;
+      }
+
+      .icons-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+      }
+
+      .icon-card {
+        background: #d2d3d4;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+      }
+
+      .icon-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      }
+
+      .icon-image-container {
+        height: 64px;
+        width: 64px;
+        margin: 0 auto 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .icon-image {
+        max-width: 64px;
+        max-height: 64px;
+        width: auto;
+        height: auto;
+        display: block;
+        object-fit: contain;
+      }
+
+      .icon-name {
+        text-align: center;
+        font-weight: 500;
+        margin-bottom: 8px;
+        color: #333;
+        word-break: break-word;
+      }
+
+      .icon-size {
+        text-align: center;
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 15px;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+      }
+
+      .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .btn-copy {
+        background-color: #4285f4;
+        color: white;
+      }
+
+      .btn-copy:hover {
+        background-color: #3367d6;
+      }
+
+      .btn-download {
+        background-color: #34a853;
+        color: white;
+      }
+
+      .btn-download:hover {
+        background-color: #137333;
+      }
+
+      .toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #333;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 4px;
+        opacity: 0;
+        transform: translateY(100%);
+        transition: all 0.3s;
+        z-index: 1000;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .loading {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+      }
+
+      /* 検索機能のスタイル */
+      .search-container {
+        max-width: 500px;
+        margin: 0 auto 30px;
+        position: relative;
+      }
+
+      .search-box {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 12px 20px 12px 45px;
+        font-size: 16px;
+        border: 2px solid #ddd;
+        border-radius: 25px;
+        background: white;
+        outline: none;
+        transition: all 0.3s ease;
+      }
+
+      .search-input:focus {
+        border-color: #4285f4;
+        box-shadow: 0 2px 8px rgba(66, 133, 244, 0.2);
+      }
+
+      .search-icon {
+        position: absolute;
+        left: 15px;
+        font-size: 16px;
+        color: #666;
+        pointer-events: none;
+      }
+
+      .search-clear {
+        position: absolute;
+        right: 15px;
+        background: none;
+        border: none;
+        font-size: 18px;
+        color: #999;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .search-clear.visible {
+        opacity: 1;
+      }
+
+      .search-clear:hover {
+        color: #666;
+      }
+
+      .no-results {
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+      }
+
+      .no-results-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+      }
+
+      .search-stats {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #666;
+        font-size: 14px;
+      }
+
+      /* 検索ハイライト */
+      .highlight {
+        background: #fff3cd;
+        padding: 2px 4px;
+        border-radius: 3px;
+        font-weight: 600;
+      }
+
+      @media (max-width: 768px) {
         .search-input {
-            width: 100%;
-            padding: 12px 20px 12px 45px;
-            font-size: 16px;
-            border: 2px solid #ddd;
-            border-radius: 25px;
-            background: white;
-            outline: none;
-            transition: all 0.3s ease;
+          font-size: 16px; /* iOSでズームを防ぐ */
         }
-        
-        .search-input:focus {
-            border-color: #4285f4;
-            box-shadow: 0 2px 8px rgba(66, 133, 244, 0.2);
-        }
-        
-        .search-icon {
-            position: absolute;
-            left: 15px;
-            font-size: 16px;
-            color: #666;
-            pointer-events: none;
-        }
-        
-        .search-clear {
-            position: absolute;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 18px;
-            color: #999;
-            cursor: pointer;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .search-clear.visible {
-            opacity: 1;
-        }
-        
-        .search-clear:hover {
-            color: #666;
-        }
-        
-        .no-results {
-            text-align: center;
-            padding: 60px 20px;
-            color: #666;
-        }
-        
-        .no-results-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
-        
-        .search-stats {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #666;
-            font-size: 14px;
-        }
-        
-        /* 検索ハイライト */
-        .highlight {
-            background: #fff3cd;
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-weight: 600;
-        }
-        
-        @media (max-width: 768px) {
-            .search-input {
-                font-size: 16px; /* iOSでズームを防ぐ */
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1 id="page-title">Icons</h1>
-    
+
     <!-- 検索機能 -->
     <div class="search-container">
-        <div class="search-box">
-            <input 
-                type="text" 
-                id="category-search" 
-                class="search-input" 
-                placeholder="アイコンを検索..."
-                autocomplete="off"
-            >
-            <div class="search-icon">🔍</div>
-            <button id="search-clear" class="search-clear">×</button>
-        </div>
+      <div class="search-box">
+        <input
+          type="text"
+          id="category-search"
+          class="search-input"
+          placeholder="アイコンを検索..."
+          autocomplete="off"
+        />
+        <div class="search-icon">🔍</div>
+        <button id="search-clear" class="search-clear">×</button>
+      </div>
     </div>
-    
-    <div id="search-stats" class="search-stats" style="display: none;"></div>
+
+    <div id="search-stats" class="search-stats" style="display: none"></div>
     <div id="loading" class="loading">アイコンを読み込み中...</div>
     <div id="icons-container" class="icons-grid"></div>
-    
+
     <div id="toast" class="toast"></div>
 
     <script>
-        // フォルダ名を自動取得
-        const folderName = window.location.pathname.split('/').filter(p => p).pop() || '';
-        
-        // ページタイトルを自動設定
-        if (folderName) {
-            const displayName = folderName.toUpperCase();
-            document.getElementById('page-title').textContent = `${displayName} Icons`;
-            document.title = `${displayName} Icons - Icons Factory`;
+      // フォルダ名を自動取得
+      const folderName =
+        window.location.pathname
+          .split("/")
+          .filter((p) => p)
+          .pop() || "";
+
+      // ページタイトルを自動設定
+      if (folderName) {
+        const displayName = folderName.toUpperCase();
+        document.getElementById(
+          "page-title"
+        ).textContent = `${displayName} Icons`;
+        document.title = `${displayName} Icons - Icons Factory`;
+      }
+
+      // アイコンファイルの表示用URL（相対パス）
+      const getIconDisplayUrl = (filename) => {
+        return `./${filename}`;
+      };
+
+      // URLコピー用の絶対URL
+      const getIconCopyUrl = (filename) => {
+        const baseUrl =
+          window.location.origin + window.location.pathname.replace(/\/$/, "");
+        return `${baseUrl}/${filename}`;
+      };
+
+      // アイコンリストJSONのURL
+      const getIconListUrl = () => {
+        return "./icons.json";
+      };
+
+      // トースト表示
+      function showToast(message, type = "info") {
+        const toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.className = "toast show";
+        if (type === "error") {
+          toast.style.backgroundColor = "#f44336";
+        } else {
+          toast.style.backgroundColor = "#333";
+        }
+        setTimeout(() => {
+          toast.classList.remove("show");
+        }, 3000);
+      }
+
+      // URLコピー機能
+      async function copyUrl(filename) {
+        const url = getIconCopyUrl(filename);
+        try {
+          await navigator.clipboard.writeText(url);
+          showToast("URLをコピーしました");
+        } catch (err) {
+          showToast("コピーに失敗しました");
+        }
+      }
+
+      // ダウンロード機能
+      async function downloadIcon(filename) {
+        try {
+          showToast("ダウンロード準備中...");
+
+          // 相対パスでファイルにアクセス（同一オリジンなのでCORS制限なし）
+          const response = await fetch(`./${filename}`);
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = filename;
+          a.style.display = "none";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+
+          // オブジェクトURLをクリーンアップ
+          window.URL.revokeObjectURL(url);
+
+          showToast("ダウンロードを開始しました");
+        } catch (error) {
+          console.error("ダウンロードエラー:", error);
+          showToast("ダウンロードに失敗しました", "error");
+        }
+      }
+
+      // 検索機能変数
+      let allIcons = [];
+      let searchTimeout;
+
+      // 検索実行
+      function performSearch(query) {
+        const normalizedQuery = query.toLowerCase().trim();
+
+        if (!normalizedQuery) {
+          displayIcons(allIcons);
+          updateSearchStats(allIcons.length, allIcons.length);
+          return;
         }
 
-        // アイコンファイルの表示用URL（相対パス）
-        const getIconDisplayUrl = (filename) => {
-            return `./${filename}`;
-        };
+        const filteredIcons = allIcons.filter((filename) => {
+          const iconName = filename.replace(".png", "").toLowerCase();
+          return iconName.includes(normalizedQuery);
+        });
 
-        // URLコピー用の絶対URL
-        const getIconCopyUrl = (filename) => {
-            const baseUrl = window.location.origin + window.location.pathname.replace(/\/$/, '');
-            return `${baseUrl}/${filename}`;
-        };
+        displayIcons(filteredIcons, normalizedQuery);
+        updateSearchStats(filteredIcons.length, allIcons.length);
+      }
 
-        // アイコンリストJSONのURL
-        const getIconListUrl = () => {
-            return './icons.json';
-        };
+      // アイコン表示
+      function displayIcons(icons, searchQuery = "") {
+        const iconsContainer = document.getElementById("icons-container");
 
-        // トースト表示
-        function showToast(message, type = 'info') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = 'toast show';
-            if (type === 'error') {
-                toast.style.backgroundColor = '#f44336';
-            } else {
-                toast.style.backgroundColor = '#333';
-            }
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
-
-        // URLコピー機能
-        async function copyUrl(filename) {
-            const url = getIconCopyUrl(filename);
-            try {
-                await navigator.clipboard.writeText(url);
-                showToast('URLをコピーしました');
-            } catch (err) {
-                showToast('コピーに失敗しました');
-            }
-        }
-
-        // ダウンロード機能
-        async function downloadIcon(filename) {
-            try {
-                showToast('ダウンロード準備中...');
-                
-                // 相対パスでファイルにアクセス（同一オリジンなのでCORS制限なし）
-                const response = await fetch(`./${filename}`);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = filename;
-                a.style.display = 'none';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                
-                // オブジェクトURLをクリーンアップ
-                window.URL.revokeObjectURL(url);
-                
-                showToast('ダウンロードを開始しました');
-            } catch (error) {
-                console.error('ダウンロードエラー:', error);
-                showToast('ダウンロードに失敗しました', 'error');
-            }
-        }
-
-
-        // 検索機能変数
-        let allIcons = [];
-        let searchTimeout;
-        
-        // 検索実行
-        function performSearch(query) {
-            const normalizedQuery = query.toLowerCase().trim();
-            
-            if (!normalizedQuery) {
-                displayIcons(allIcons);
-                updateSearchStats(allIcons.length, allIcons.length);
-                return;
-            }
-            
-            const filteredIcons = allIcons.filter(filename => {
-                const iconName = filename.replace('.png', '').toLowerCase();
-                return iconName.includes(normalizedQuery);
-            });
-            
-            displayIcons(filteredIcons, normalizedQuery);
-            updateSearchStats(filteredIcons.length, allIcons.length);
-        }
-        
-        // アイコン表示
-        function displayIcons(icons, searchQuery = '') {
-            const iconsContainer = document.getElementById('icons-container');
-            
-            if (icons.length === 0 && searchQuery) {
-                iconsContainer.innerHTML = `
+        if (icons.length === 0 && searchQuery) {
+          iconsContainer.innerHTML = `
                     <div class="no-results">
                         <div class="no-results-icon">🔍</div>
-                        <div>「${escapeHtml(searchQuery)}」にマッチするアイコンが見つかりません</div>
+                        <div>「${escapeHtml(
+                          searchQuery
+                        )}」にマッチするアイコンが見つかりません</div>
                     </div>
                 `;
-            } else if (icons.length === 0) {
-                iconsContainer.innerHTML = '<p style="text-align: center; color: #666;">アイコンが見つかりませんでした</p>';
-            } else {
-                const iconsHtml = icons.map(filename => createIconCard(filename, searchQuery)).join('');
-                iconsContainer.innerHTML = iconsHtml;
-            }
+        } else if (icons.length === 0) {
+          iconsContainer.innerHTML =
+            '<p style="text-align: center; color: #666;">アイコンが見つかりませんでした</p>';
+        } else {
+          const iconsHtml = icons
+            .map((filename) => createIconCard(filename, searchQuery))
+            .join("");
+          iconsContainer.innerHTML = iconsHtml;
         }
-        
-        // 検索統計更新
-        function updateSearchStats(filteredCount, totalCount) {
-            const searchStats = document.getElementById('search-stats');
-            const searchInput = document.getElementById('category-search');
-            
-            if (searchInput.value.trim()) {
-                searchStats.textContent = `${totalCount}件中 ${filteredCount}件を表示`;
-                searchStats.style.display = 'block';
-            } else {
-                searchStats.style.display = 'none';
-            }
+      }
+
+      // 検索統計更新
+      function updateSearchStats(filteredCount, totalCount) {
+        const searchStats = document.getElementById("search-stats");
+        const searchInput = document.getElementById("category-search");
+
+        if (searchInput.value.trim()) {
+          searchStats.textContent = `${totalCount}件中 ${filteredCount}件を表示`;
+          searchStats.style.display = "block";
+        } else {
+          searchStats.style.display = "none";
         }
-        
-        // アイコンカードを動的に生成（ハイライト付き）
-        function createIconCard(filename, searchQuery = '') {
-            let iconName = filename.replace('.png', '').replace(/-/g, ' ');
-            
-            // 検索クエリがある場合はハイライト
-            if (searchQuery) {
-                iconName = highlightText(iconName, searchQuery);
-            }
-            
-            const iconUrl = getIconDisplayUrl(filename);
-            const iconId = `icon_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-            
-            return `
+      }
+
+      // アイコンカードを動的に生成（ハイライト付き）
+      function createIconCard(filename, searchQuery = "") {
+        let iconName = filename.replace(".png", "").replace(/-/g, " ");
+
+        // 検索クエリがある場合はハイライト
+        if (searchQuery) {
+          iconName = highlightText(iconName, searchQuery);
+        }
+
+        const iconUrl = getIconDisplayUrl(filename);
+        const iconId = `icon_${Date.now()}_${Math.random()
+          .toString(36)
+          .substr(2, 9)}`;
+
+        return `
                 <div class="icon-card">
-                    <img id="${iconId}" src="${iconUrl}" alt="${filename.replace('.png', '')}" class="icon-image" 
-                         onerror="this.style.display='none'" onload="updateIconSize('${iconId}', '${filename}')">
+                    <div class="icon-image-container">
+                        <img id="${iconId}" src="${iconUrl}" alt="${filename.replace(
+          ".png",
+          ""
+        )}" class="icon-image" 
+                             onerror="this.style.display='none'" onload="updateIconSize('${iconId}', '${filename}')">
+                    </div>
                     <div class="icon-name">${iconName}</div>
                     <div id="${iconId}_size" class="icon-size">読み込み中...</div>
                     <div class="button-group">
@@ -412,110 +438,111 @@
                     </div>
                 </div>
             `;
+      }
+
+      // テキストハイライト
+      function highlightText(text, query) {
+        if (!query.trim()) return escapeHtml(text);
+
+        const escapedText = escapeHtml(text);
+        const escapedQuery = escapeHtml(query);
+        const regex = new RegExp(`(${escapedQuery})`, "gi");
+
+        return escapedText.replace(regex, '<span class="highlight">$1</span>');
+      }
+
+      // HTMLエスケープ
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // アイコンサイズ取得・表示
+      function updateIconSize(iconId, filename) {
+        const img = document.getElementById(iconId);
+        const sizeDiv = document.getElementById(`${iconId}_size`);
+
+        if (img && sizeDiv) {
+          if (img.naturalWidth && img.naturalHeight) {
+            sizeDiv.textContent = `${img.naturalWidth} × ${img.naturalHeight}px`;
+          } else {
+            sizeDiv.textContent = "サイズ取得失敗";
+          }
         }
-        
-        // テキストハイライト
-        function highlightText(text, query) {
-            if (!query.trim()) return escapeHtml(text);
-            
-            const escapedText = escapeHtml(text);
-            const escapedQuery = escapeHtml(query);
-            const regex = new RegExp(`(${escapedQuery})`, 'gi');
-            
-            return escapedText.replace(regex, '<span class="highlight">$1</span>');
+      }
+
+      // アイコンリストを読み込み（検索対応版）
+      async function loadIconList() {
+        const iconsContainer = document.getElementById("icons-container");
+        const loading = document.getElementById("loading");
+
+        try {
+          // GitHub Actionsで生成されたアイコンリストを取得
+          const response = await fetch(getIconListUrl());
+          if (!response.ok) {
+            throw new Error("アイコンリストの取得に失敗");
+          }
+
+          const data = await response.json();
+          allIcons = data.icons || [];
+
+          if (allIcons.length > 0) {
+            displayIcons(allIcons);
+            updateSearchStats(allIcons.length, allIcons.length);
+            showToast(`${allIcons.length}個のアイコンを読み込みました`);
+          } else {
+            iconsContainer.innerHTML =
+              '<p style="text-align: center; color: #666;">アイコンが見つかりませんでした</p>';
+          }
+        } catch (error) {
+          console.error("アイコンリストの読み込みに失敗:", error);
+          iconsContainer.innerHTML =
+            '<p style="text-align: center; color: #ff4444;">アイコンリストの読み込みに失敗しました</p>';
+          showToast("アイコンリストの読み込みに失敗しました");
+        } finally {
+          // ローディング非表示
+          loading.style.display = "none";
         }
-        
-        // HTMLエスケープ
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-        
-        // アイコンサイズ取得・表示
-        function updateIconSize(iconId, filename) {
-            const img = document.getElementById(iconId);
-            const sizeDiv = document.getElementById(`${iconId}_size`);
-            
-            if (img && sizeDiv) {
-                if (img.naturalWidth && img.naturalHeight) {
-                    sizeDiv.textContent = `${img.naturalWidth} × ${img.naturalHeight}px`;
-                } else {
-                    sizeDiv.textContent = 'サイズ取得失敗';
-                }
-            }
-        }
-        
-        // アイコンリストを読み込み（検索対応版）
-        async function loadIconList() {
-            const iconsContainer = document.getElementById('icons-container');
-            const loading = document.getElementById('loading');
-            
-            try {
-                // GitHub Actionsで生成されたアイコンリストを取得
-                const response = await fetch(getIconListUrl());
-                if (!response.ok) {
-                    throw new Error('アイコンリストの取得に失敗');
-                }
-                
-                const data = await response.json();
-                allIcons = data.icons || [];
-                
-                if (allIcons.length > 0) {
-                    displayIcons(allIcons);
-                    updateSearchStats(allIcons.length, allIcons.length);
-                    showToast(`${allIcons.length}個のアイコンを読み込みました`);
-                } else {
-                    iconsContainer.innerHTML = '<p style="text-align: center; color: #666;">アイコンが見つかりませんでした</p>';
-                }
-                
-            } catch (error) {
-                console.error('アイコンリストの読み込みに失敗:', error);
-                iconsContainer.innerHTML = '<p style="text-align: center; color: #ff4444;">アイコンリストの読み込みに失敗しました</p>';
-                showToast('アイコンリストの読み込みに失敗しました');
-            } finally {
-                // ローディング非表示
-                loading.style.display = 'none';
-            }
-        }
-        
-        // ページ読み込み時の初期化
-        document.addEventListener('DOMContentLoaded', function() {
-            loadIconList();
-            
-            const searchInput = document.getElementById('category-search');
-            const clearButton = document.getElementById('search-clear');
-            
-            // リアルタイム検索
-            searchInput.addEventListener('input', function(e) {
-                const query = e.target.value;
-                
-                // クリアボタンの表示/非表示
-                clearButton.classList.toggle('visible', query.length > 0);
-                
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    performSearch(query);
-                }, 300);
-            });
-            
-            // クリアボタン
-            clearButton.addEventListener('click', function() {
-                searchInput.value = '';
-                clearButton.classList.remove('visible');
-                performSearch('');
-                searchInput.focus();
-            });
-            
-            // ESCキーで検索クリア
-            searchInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    searchInput.value = '';
-                    clearButton.classList.remove('visible');
-                    performSearch('');
-                }
-            });
+      }
+
+      // ページ読み込み時の初期化
+      document.addEventListener("DOMContentLoaded", function () {
+        loadIconList();
+
+        const searchInput = document.getElementById("category-search");
+        const clearButton = document.getElementById("search-clear");
+
+        // リアルタイム検索
+        searchInput.addEventListener("input", function (e) {
+          const query = e.target.value;
+
+          // クリアボタンの表示/非表示
+          clearButton.classList.toggle("visible", query.length > 0);
+
+          clearTimeout(searchTimeout);
+          searchTimeout = setTimeout(() => {
+            performSearch(query);
+          }, 300);
         });
+
+        // クリアボタン
+        clearButton.addEventListener("click", function () {
+          searchInput.value = "";
+          clearButton.classList.remove("visible");
+          performSearch("");
+          searchInput.focus();
+        });
+
+        // ESCキーで検索クリア
+        searchInput.addEventListener("keydown", function (e) {
+          if (e.key === "Escape") {
+            searchInput.value = "";
+            clearButton.classList.remove("visible");
+            performSearch("");
+          }
+        });
+      });
     </script>
-</body>
+  </body>
 </html>
