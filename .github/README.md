@@ -231,16 +231,27 @@ icons-factory/
 
 ### 検索エンジン対策（プライベート利用向け）
 
+**GitHub Pages サイト隠蔽:**
 - **robots.txt**: 全ページアクセス禁止 (`Disallow: /`)
 - **メタタグ**: `noindex, nofollow, noarchive, nosnippet` 設定
 - **SEO メタ情報**: description、keywords、og:、twitter タグなし
 - **sitemap.xml**: 存在しない（検索エンジンに構造を教えない）
 
+**GitHubリポジトリ隠蔽:**
+- **.nojekyll**: Jekyll処理を無効化、静的ファイル扱い
+- **.gitattributes**: 言語検出制限、バイナリファイル検索除外
+- **robots.txt**: GitHubページ用の追加隠蔽設定
+  ```
+  Disallow: /*.git*
+  Disallow: /README.md  
+  Disallow: /.github/
+  ```
+
 ### プライベート利用向け設計
 
-- 検索エンジンに発見されない設定
-- 外部サービス連携なし
-- マーケティング要素なし
+- **二重隠蔽**: サイト + リポジトリ両方を検索から隠蔽
+- **外部サービス連携なし**: トラッキング・解析なし
+- **マーケティング要素なし**: 完全プライベート仕様
 
 ## 📝 ライセンス
 

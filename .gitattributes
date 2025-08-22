@@ -1,0 +1,12 @@
+# GitHubでの言語検出を制限
+*.html linguist-detectable=false
+*.css linguist-detectable=false
+*.js linguist-detectable=false
+*.md linguist-documentation
+
+# バイナリファイルとして扱い、検索インデックスから除外
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.svg binary

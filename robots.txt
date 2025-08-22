@@ -1,2 +1,8 @@
 User-agent: *
 Disallow: /
+
+# GitHubリポジトリページも隠蔽
+User-agent: *
+Disallow: /*.git*
+Disallow: /README.md
+Disallow: /.github/

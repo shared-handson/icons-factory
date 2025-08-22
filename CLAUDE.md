@@ -186,17 +186,49 @@ icons-factory/
 
 ### 検索エンジン対策（プライベート利用向け）
 
-**robots.txt 設定:**
+**GitHub Pages サイト隠蔽:**
 
+robots.txt 設定:
 ```
 User-agent: *
 Disallow: /
 ```
 
-**HTML メタタグ設定（全ページ共通）:**
-
+HTML メタタグ設定（全ページ共通）:
 ```html
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+```
+
+**GitHubリポジトリ隠蔽:**
+
+.nojekyll ファイル:
+```
+（空ファイル - Jekyll処理を無効化）
+```
+
+.gitattributes 設定:
+```
+# GitHubでの言語検出を制限
+*.html linguist-detectable=false
+*.css linguist-detectable=false
+*.js linguist-detectable=false
+*.md linguist-documentation
+
+# バイナリファイルとして扱い、検索インデックスから除外
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.svg binary
+```
+
+robots.txt 追加設定:
+```
+# GitHubリポジトリページも隠蔽
+User-agent: *
+Disallow: /*.git*
+Disallow: /README.md
+Disallow: /.github/
 ```
 
 **SEO 回避設定:**
@@ -208,10 +240,12 @@ Disallow: /
 
 ### 検索エンジンに発見されない理由
 
-1. **robots.txt**: 全ページアクセス禁止
+1. **robots.txt**: 全ページアクセス禁止 + GitHubファイル除外
 2. **メタタグ**: インデックス・フォロー・アーカイブ・スニペット禁止
 3. **SEO メタ情報**: 意図的に削除済み
 4. **sitemap**: 存在しない（検索エンジンに構造を教えない）
+5. **.nojekyll**: 静的ファイル扱いで発見されにくく
+6. **.gitattributes**: 言語検出・バイナリファイル検索を制限
 
 ## ファイル名サニタイズ機能
 
