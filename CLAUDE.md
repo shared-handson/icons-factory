@@ -126,14 +126,14 @@ icons-factory/
 
    - **SVG 変換**: Inkscape 使用、長辺 512px・アスペクト比維持・縮小のみ
    - **JPG/JPEG/GIF 変換**: ImageMagick 使用、長辺 512px・アスペクト比維持・縮小のみ
-   - **ファイル名サニタイズ**: URL安全な形式に自動変換（スペース→アンダースコア、特殊文字→ハイフン、小文字化）
+   - **ファイル名サニタイズ**: URL 安全な形式に自動変換（スペース → アンダースコア、特殊文字 → ハイフン、大文字保持）
    - **元ファイル削除**: 変換成功後に元ファイル（SVG/JPG/JPEG/GIF）を自動削除
 
-2. **PNG最適化**
+2. **PNG 最適化**
 
-   - **サイズチェック**: 長辺が512pxを超えるPNGファイルを検出
-   - **自動縮小**: ImageMagick使用、長辺512px・アスペクト比維持
-   - **ファイル名サニタイズ**: 既存PNGファイルもURL安全な形式に変換
+   - **サイズチェック**: 長辺が 512px を超える PNG ファイルを検出
+   - **自動縮小**: ImageMagick 使用、長辺 512px・アスペクト比維持
+   - **ファイル名サニタイズ**: 既存 PNG ファイルも URL 安全な形式に変換
 
 3. **アイコンリスト生成**
 
@@ -215,27 +215,29 @@ Disallow: /
 
 ## ファイル名サニタイズ機能
 
-### URL安全なファイル名への自動変換
+### URL 安全なファイル名への自動変換
 
-GitHub Actionsで画像変換時に、URL安全でないファイル名を自動的にサニタイズします：
+GitHub Actions で画像変換時に、URL 安全でないファイル名を自動的にサニタイズします：
 
-- **大文字→小文字**: 「MyIcon.svg」→「myicon.svg」
-- **スペース→アンダースコア**: 「My Icon.svg」→「my_icon.svg」  
-- **特殊文字→ハイフン**: 「Icon@#$.svg」→「icon---.svg」
-- **連続文字の統一**: 「icon---___.svg」→「icon-.svg」
+- **スペース → アンダースコア**: 「My Icon.svg」→「My_Icon.svg」
+- **特殊文字 → ハイフン**: 「Icon@#$.svg」→「Icon---.svg」
+- **連続文字の統一**: 「icon---\_\_\_.svg」→「icon-.svg」
 - **前後の記号削除**: 「-icon-.svg」→「icon.svg」
 - **空文字対策**: 特殊文字のみの場合「icon.png」を使用
+- **大文字保持**: 大文字はそのまま保持
 
 **サニタイズ例:**
-- 「Big Query Service.svg」→「big_query_service.png」
-- 「Cloud Storage (Beta).jpg」→「cloud_storage-beta-.png」
-- 「データベース★.gif」→「--.png」→「icon.png」
+
+- 「Big Query Service.svg」→「Big_Query_Service.png」
+- 「Cloud Storage (Beta).jpg」→「Cloud_Storage-Beta-.png」
+- 「データベース ★.gif」→「--.png」→「icon.png」
 
 ### 変更通知
 
-ファイル名が変更された場合、GitHub Actionsログで通知されます：
+ファイル名が変更された場合、GitHub Actions ログで通知されます：
+
 ```
-🔧 Sanitized filename: My Special Icon!.svg -> my_special_icon-.png
+🔧 Sanitized filename: My Special Icon!.svg -> My_Special_Icon-.png
 ```
 
 ## UI/UX 改善
@@ -264,8 +266,8 @@ GitHub Actionsで画像変換時に、URL安全でないファイル名を自動
 2. `main.yml` ワークフローが自動実行:
    - **SVG**: Inkscape で最適なサイズの PNG に変換（長辺 512px 以下、縮小のみ）
    - **JPG/JPEG/GIF**: ImageMagick で PNG に変換（長辺 512px 以下、縮小のみ）
-   - **PNG最適化**: 長辺512pxを超えるPNGファイルを自動縮小
-   - **ファイル名自動サニタイズ**: 全形式でURL安全な形式に変換（「My Icon.svg」→「my_icon.png」）
+   - **PNG 最適化**: 長辺 512px を超える PNG ファイルを自動縮小
+   - **ファイル名自動サニタイズ**: 全形式で URL 安全な形式に変換（「My Icon.svg」→「My_Icon.png」）
    - 元ファイル（SVG/JPG/JPEG/GIF）は変換成功後に自動削除
 3. GitHub Pages デプロイ時にアイコンリスト（icons.json）を動的生成
 4. GitHub Pages で自動デプロイ
@@ -337,3 +339,15 @@ GitHub Actionsで画像変換時に、URL安全でないファイル名を自動
   ]
 }
 ```
+
+## TODO（将来の改善項目）
+
+### トップページの改善
+
+- [x] **アイコン数の修正**: トップページに表示されるアイコン数が正しくない問題を修正
+- [x] **不要なアイコン表示削除**: トップページの各カテゴリのアイコンプレビューを削除（シンプル化）
+- [ ] **カテゴリ追加自動化**: 新しいカテゴリを追加するためのシェルスクリプトを作成
+  - 人間のインタラクティブな入力を求めてもよい
+  - トップページ（index.html）へのカード追加
+  - CSS クラスの生成
+  - カテゴリ表示名の設定

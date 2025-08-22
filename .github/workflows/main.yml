@@ -474,8 +474,10 @@ jobs:
           # メタデータファイルの終了
           echo '' >> metadata.json
           echo '  },' >> metadata.json
-          echo "  \"total_icons\": $total_icons," >> metadata.json
-          echo "  \"total_categories\": $category_count," >> metadata.json
+          echo '  "total": {' >> metadata.json
+          echo "    \"icons\": $total_icons," >> metadata.json
+          echo "    \"categories\": $category_count" >> metadata.json
+          echo '  },' >> metadata.json
           echo "  \"generated_at\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"" >> metadata.json
           echo '}' >> metadata.json
 

@@ -83,7 +83,6 @@ cd azure/
 
 ```html
 <a href="./azure/" class="platform-card azure">
-  <div class="platform-icon">AZ</div>
   <h2 class="platform-name">Microsoft Azure</h2>
   <p class="platform-description">Azureサービスの公式アイコンCollection</p>
   <div class="platform-stats">
@@ -98,9 +97,6 @@ cd azure/
 ```css
 .azure::before {
   background: #0078d4;
-}
-.azure .platform-icon {
-  background: linear-gradient(135deg, #0078d4, #106ebe);
 }
 ```
 
