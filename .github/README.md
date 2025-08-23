@@ -77,7 +77,7 @@
 
 ### 🤖 自動化スクリプト使用（推奨）
 
-**基本使用法:**
+**Unix/Linux/macOS の場合:**
 
 ```bash
 # インタラクティブモード
@@ -89,6 +89,21 @@
 # 例：Azureカテゴリを追加
 ./add-category.sh azure "Microsoft Azure" "Azure サービスの公式アイコンコレクション" "#0078d4"
 ```
+
+**Windows の場合:**
+
+```cmd
+# インタラクティブモード
+add-category.bat
+
+# コマンドライン引数モード
+add-category.bat [カテゴリ名] [表示名] [説明] [カラーコード]
+
+# 例：Azureカテゴリを追加
+add-category.bat azure "Microsoft Azure" "Azure サービスの公式アイコンコレクション" "#0078d4"
+```
+
+**重要**: スクリプト実行後も `.github/README.md` のカテゴリ表とソース表に新カテゴリの説明とソースを手動で追加してください。
 
 **スクリプトが自動実行する内容:**
 
@@ -113,6 +128,8 @@ mkdir azure/
 ### 2. メインページの更新（手動）
 
 `index.html`のプラットフォームカードセクションに新しいカードを追加：
+
+**重要**: `.github/README.md` のカテゴリ表とソース表に新カテゴリの説明とソースも追加してください。
 
 ```html
 <a href="./azure/" class="platform-card azure">
@@ -205,6 +222,8 @@ icons-factory/
 ├── .gitignore                   # 中間ファイルを除外
 ├── .nojekyll                    # Jekyll処理無効化（GitHub Pages用）
 ├── CLAUDE.md                    # Claude Code用プロジェクト指示
+├── add-category.sh              # カテゴリ追加自動化スクリプト（Unix/Linux/macOS）
+├── add-category.bat             # カテゴリ追加自動化スクリプト（Windows）
 ├── index.html                   # メインページ（グローバル検索機能付き）
 ├── robots.txt                   # 検索エンジン除外設定（サイト・リポジトリ両方）
 ├── search-index.json            # 全カテゴリ統合検索用（自動生成）

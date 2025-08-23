@@ -307,6 +307,7 @@ GitHub Actions で画像変換時に、URL 安全でないファイル名を自�
 
 **自動化スクリプト使用（推奨）**:
 
+Unix/Linux/macOS の場合:
 ```bash
 # インタラクティブモード
 ./add-category.sh
@@ -318,12 +319,27 @@ GitHub Actions で画像変換時に、URL 安全でないファイル名を自�
 ./add-category.sh azure "Microsoft Azure" "Azure サービスの公式アイコンコレクション" "#0078d4"
 ```
 
+Windows の場合:
+```cmd
+# インタラクティブモード
+add-category.bat
+
+# コマンドライン引数モード
+add-category.bat [カテゴリ名] [表示名] [説明] [カラーコード]
+
+# 例
+add-category.bat azure "Microsoft Azure" "Azure サービスの公式アイコンコレクション" "#0078d4"
+```
+
+**重要**: スクリプト実行後も `.github/README.md` のカテゴリ表とソース表に新カテゴリの説明とソースを手動で追加してください。
+
 **手動追加の場合**:
 
 1. `mkdir [カテゴリ名]` でフォルダ作成
 2. 画像ファイル（任意の形式）を配置
 3. **重要**: メインページ（`index.html`）にカテゴリカードと CSS を手動追加
-4. GitHub Actions が自動実行（ワークフロー設定変更不要）
+4. **重要**: `.github/README.md` のカテゴリ表とソース表に新カテゴリの説明とソースを追加
+5. GitHub Actions が自動実行（ワークフロー設定変更不要）
 
 ### アイコン一括更新
 
