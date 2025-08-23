@@ -100,6 +100,62 @@ jobs:
           }
           EOF
 
+      - name: Sanitize all image filenames
+        run: |
+          # 共通関数を読み込み
+          source /tmp/common_functions.sh
+          sanitized_files=0
+
+          # ファイル名サニタイズ処理関数
+          sanitize_all_images() {
+            local folder_sanitized=0
+            # 全画像形式を一括処理
+            for extension in svg jpg jpeg gif png; do
+              for img_file in *.$extension; do
+                if [ -f "$img_file" ]; then
+                  # サニタイズされたファイル名を生成
+                  sanitized_name=$(sanitize_filename "$img_file")
+                  
+                  # ファイル名が変更される場合はリネーム
+                  if [ "$img_file" != "$sanitized_name" ]; then
+                    echo "🔧 Sanitizing filename: $img_file -> $sanitized_name"
+                    mv "$img_file" "$sanitized_name"
+                    if [ $? -eq 0 ]; then
+                      echo "✅ Successfully renamed: $img_file"
+                      folder_sanitized=$((folder_sanitized + 1))
+                    else
+                      echo "❌ Failed to rename: $img_file"
+                    fi
+                  fi
+                fi
+              done
+            done
+            echo "Sanitized $folder_sanitized files in this folder"
+          }
+
+          # 全フォルダで一括サニタイズ処理実行
+          for folder in */; do
+            if [ -d "$folder" ]; then
+              folder_name=$(basename "$folder")
+              
+              # 除外フォルダをスキップ
+              if should_skip_folder "$folder_name"; then
+                continue
+              fi
+              
+              # 画像ファイルが存在するかチェック
+              if find "$folder" -maxdepth 1 \( -name "*.svg" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.gif" -o -name "*.png" \) -type f | grep -q .; then
+                echo "Sanitizing all image files in: $folder_name"
+                cd "$folder"
+                sanitize_all_images
+                cd ..
+              fi
+            fi
+          done
+
+          echo "📊 Filename Sanitization Summary:"
+          echo "   - All image files have been sanitized"
+
       - name: Convert SVG to PNG
         run: |
           # 共通関数を読み込み
@@ -167,126 +223,119 @@ jobs:
           echo "   - Total files converted: $converted_files"
           echo "   - Total SVGs deleted: $deleted_svgs"
 
-      - name: Sanitize image filenames
-        run: |
-          # 共通関数を読み込み
-          source /tmp/common_functions.sh
-          sanitized_files=0
-
-          # ファイル名サニタイズ処理関数
-          sanitize_image_filenames() {
-            local folder_sanitized=0
-            # 各拡張子を個別に処理してスペースを含むファイル名に対応
-            for extension in jpg jpeg gif svg; do
-              for img_file in *.$extension; do
-                if [ -f "$img_file" ]; then
-                  # サニタイズされたファイル名を生成
-                  sanitized_name=$(sanitize_filename "$img_file")
-                  
-                  # ファイル名が変更される場合はリネーム
-                  if [ "$img_file" != "$sanitized_name" ]; then
-                    echo "🔧 Sanitizing filename: $img_file -> $sanitized_name"
-                    mv "$img_file" "$sanitized_name"
-                    if [ $? -eq 0 ]; then
-                      echo "✅ Successfully renamed: $img_file"
-                      folder_sanitized=$((folder_sanitized + 1))
-                    else
-                      echo "❌ Failed to rename: $img_file"
-                    fi
-                  fi
-                fi
-              done
-            done
-            echo "Sanitized $folder_sanitized files in this folder"
-          }
-
-          # ファイル名サニタイズ処理実行
-          for folder in */; do
-            if [ -d "$folder" ]; then
-              folder_name=$(basename "$folder")
-              
-              # 除外フォルダをスキップ
-              if should_skip_folder "$folder_name"; then
-                continue
-              fi
-              
-              # 対象画像ファイルが存在するかチェック
-              if find "$folder" -maxdepth 1 \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.gif" -o -name "*.svg" \) -type f | grep -q .; then
-                echo "Sanitizing filenames in: $folder_name"
-                cd "$folder"
-                sanitize_image_filenames
-                cd ..
-              fi
-            fi
-          done
-
-          echo "📊 Filename Sanitization Summary:"
-          echo "   - Total files sanitized: $sanitized_files"
-
-      - name: Convert other image formats to PNG
+      - name: Convert JPG to PNG
         run: |
           # 共通関数を読み込み
           source /tmp/common_functions.sh
           converted_files=0
           deleted_images=0
 
-          # その他画像処理関数（サニタイズ済みファイル名で処理）
-          process_other_images() {
-            for img_file in *.jpg *.jpeg *.gif; do
-              if [ -f "$img_file" ]; then
-                # サニタイズ済みなのでそのままPNG名を生成
-                png_file="${img_file%.*}.png"
+          # JPG処理関数
+          process_jpg_files() {
+            for jpg_file in *.jpg; do
+              if [ -f "$jpg_file" ]; then
+                png_file="${jpg_file%.jpg}.png"
                 
-                echo "Converting: $img_file -> $png_file"
+                echo "Converting JPG: $jpg_file -> $png_file"
                 
-                # ImageMagickを使用して画像をPNGに変換（長辺512px・アスペクト比維持）
-                convert "$img_file" \
+                convert "$jpg_file" \
                         -resize 512x512\> \
                         -background transparent \
                         "$png_file"
                 
                 if [ $? -eq 0 ]; then
-                  echo "✅ Successfully converted: $img_file"
+                  echo "✅ Successfully converted: $jpg_file"
                   converted_files=$((converted_files + 1))
-                  
-                  # 変換成功後に元ファイルを削除
-                  rm "$img_file"
-                  if [ $? -eq 0 ]; then
-                    echo "🗑️  Deleted original image: $img_file"
-                    deleted_images=$((deleted_images + 1))
-                  else
-                    echo "⚠️  Failed to delete image: $img_file"
-                  fi
+                  rm "$jpg_file" && echo "🗑️  Deleted: $jpg_file" && deleted_images=$((deleted_images + 1))
                 else
-                  echo "❌ Failed to convert: $img_file"
+                  echo "❌ Failed to convert: $jpg_file"
                 fi
               fi
             done
           }
 
-          # その他画像ファイル処理実行（複数パターンのファイル）
-          for folder in */; do
-            if [ -d "$folder" ]; then
-              folder_name=$(basename "$folder")
-              
-              # 除外フォルダをスキップ
-              if should_skip_folder "$folder_name"; then
-                continue
-              fi
-              
-              # 対象画像ファイルが存在するかチェック
-              if ls "$folder"*.jpg "$folder"*.jpeg "$folder"*.gif 1> /dev/null 2>&1; then
-                echo "Processing other image files in: $folder_name"
-                cd "$folder"
-                process_other_images
-                cd ..
-              fi
-            fi
-          done
+          # JPGファイル処理実行
+          process_folders "*.jpg" "process_jpg_files"
 
-          echo "📊 Image Conversion Summary:"
+          echo "📊 JPG Conversion Summary:"
           echo "   - Total files converted: $converted_files"
-          echo "   - Total images deleted: $deleted_images"
+          echo "   - Total files deleted: $deleted_images"
+
+      - name: Convert JPEG to PNG
+        run: |
+          # 共通関数を読み込み
+          source /tmp/common_functions.sh
+          converted_files=0
+          deleted_images=0
+
+          # JPEG処理関数
+          process_jpeg_files() {
+            for jpeg_file in *.jpeg; do
+              if [ -f "$jpeg_file" ]; then
+                png_file="${jpeg_file%.jpeg}.png"
+                
+                echo "Converting JPEG: $jpeg_file -> $png_file"
+                
+                convert "$jpeg_file" \
+                        -resize 512x512\> \
+                        -background transparent \
+                        "$png_file"
+                
+                if [ $? -eq 0 ]; then
+                  echo "✅ Successfully converted: $jpeg_file"
+                  converted_files=$((converted_files + 1))
+                  rm "$jpeg_file" && echo "🗑️  Deleted: $jpeg_file" && deleted_images=$((deleted_images + 1))
+                else
+                  echo "❌ Failed to convert: $jpeg_file"
+                fi
+              fi
+            done
+          }
+
+          # JPEGファイル処理実行
+          process_folders "*.jpeg" "process_jpeg_files"
+
+          echo "📊 JPEG Conversion Summary:"
+          echo "   - Total files converted: $converted_files"
+          echo "   - Total files deleted: $deleted_images"
+
+      - name: Convert GIF to PNG
+        run: |
+          # 共通関数を読み込み
+          source /tmp/common_functions.sh
+          converted_files=0
+          deleted_images=0
+
+          # GIF処理関数
+          process_gif_files() {
+            for gif_file in *.gif; do
+              if [ -f "$gif_file" ]; then
+                png_file="${gif_file%.gif}.png"
+                
+                echo "Converting GIF: $gif_file -> $png_file"
+                
+                convert "$gif_file" \
+                        -resize 512x512\> \
+                        -background transparent \
+                        "$png_file"
+                
+                if [ $? -eq 0 ]; then
+                  echo "✅ Successfully converted: $gif_file"
+                  converted_files=$((converted_files + 1))
+                  rm "$gif_file" && echo "🗑️  Deleted: $gif_file" && deleted_images=$((deleted_images + 1))
+                else
+                  echo "❌ Failed to convert: $gif_file"
+                fi
+              fi
+            done
+          }
+
+          # GIFファイル処理実行
+          process_folders "*.gif" "process_gif_files"
+
+          echo "📊 GIF Conversion Summary:"
+          echo "   - Total files converted: $converted_files"
+          echo "   - Total files deleted: $deleted_images"
 
       - name: Optimize PNG files
         run: |
