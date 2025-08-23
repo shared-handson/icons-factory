@@ -1,50 +1,55 @@
-#!/usr/bin/env pwsh
-
-# カテゴリ追加自動化スクリプト（PowerShell版）
+# カテゴリ追加自動化スクリプト (PowerShell版)
 # 使用方法: .\add-category.ps1 [カテゴリ名] [表示名] [説明] [カラーコード]
 
 param(
-    [string]$CategoryName,
-    [string]$DisplayName,
-    [string]$Description,
-    [string]$ColorCode
+    [string]$CategoryName = "",
+    [string]$DisplayName = "",
+    [string]$Description = "",
+    [string]$ColorCode = ""
 )
 
-# エラー時に停止
+# エラーで停止
 $ErrorActionPreference = "Stop"
 
+# 色定義（PowerShell用ANSIエスケープシーケンス）
+$RED = "`e[0;31m"
+$GREEN = "`e[0;32m"
+$YELLOW = "`e[1;33m"
+$BLUE = "`e[0;34m"
+$NC = "`e[0m"  # No Color
+
 # ヘルパー関数
-function Print-Info {
+function Write-Info {
     param([string]$Message)
-    Write-Host "ℹ️  $Message" -ForegroundColor Blue
+    Write-Host "${BLUE}ℹ️  $Message${NC}"
 }
 
-function Print-Success {
+function Write-Success {
     param([string]$Message)
-    Write-Host "✅ $Message" -ForegroundColor Green
+    Write-Host "${GREEN}✅ $Message${NC}"
 }
 
-function Print-Warning {
+function Write-Warning {
     param([string]$Message)
-    Write-Host "⚠️  $Message" -ForegroundColor Yellow
+    Write-Host "${YELLOW}⚠️  $Message${NC}"
 }
 
-function Print-Error {
+function Write-Error {
     param([string]$Message)
-    Write-Host "❌ $Message" -ForegroundColor Red
+    Write-Host "${RED}❌ $Message${NC}"
 }
 
 # 引数チェック
-if (-not $CategoryName -and -not $DisplayName -and -not $Description -and -not $ColorCode) {
-    Print-Info "Icons Factory カテゴリ追加スクリプト"
+if ($args.Count -eq 0 -and [string]::IsNullOrEmpty($CategoryName)) {
+    Write-Info "Icons Factory カテゴリ追加スクリプト"
     Write-Host ""
-    Print-Info "使用方法:"
+    Write-Info "使用方法:"
     Write-Host "  .\add-category.ps1 [カテゴリ名] [表示名] [説明] [カラーコード]"
     Write-Host ""
-    Print-Info "例:"
+    Write-Info "例:"
     Write-Host '  .\add-category.ps1 azure "Microsoft Azure" "Azure サービスの公式アイコンコレクション" "#0078d4"'
     Write-Host ""
-    Print-Info "インタラクティブモード:"
+    Write-Info "インタラクティブモード:"
     Write-Host "  .\add-category.ps1"
     Write-Host ""
     
@@ -52,34 +57,52 @@ if (-not $CategoryName -and -not $DisplayName -and -not $Description -and -not $
     $CategoryName = Read-Host "カテゴリ名（フォルダ名）"
     $DisplayName = Read-Host "表示名"
     $Description = Read-Host "説明"
-    $ColorCode = Read-Host "カラーコード（例: #0078d4）"
+    $ColorCodeInput = Read-Host "カラーコード（例: #0078d4、未入力で #000000）"
+    
+    # カラーコードが未入力の場合はデフォルトを設定
+    if ([string]::IsNullOrEmpty($ColorCodeInput)) {
+        $ColorCode = "#000000"
+        Write-Info "カラーコードが未入力のため、デフォルト値 #000000 (黒) を使用します"
+    } else {
+        $ColorCode = $ColorCodeInput
+    }
+} else {
+    # コマンドライン引数モード
+    if ([string]::IsNullOrEmpty($ColorCode)) {
+        $ColorCode = "#000000"
+        
+        # コマンドライン引数でカラーコードが未指定の場合
+        if ($args.Count -lt 4) {
+            Write-Info "カラーコードが未指定のため、デフォルト値 #000000 (黒) を使用します"
+        }
+    }
 }
 
-# 入力値検証
-if (-not $CategoryName -or -not $DisplayName -or -not $Description -or -not $ColorCode) {
-    Print-Error "すべての値を入力してください"
+# 入力値検証（カラーコードは既にデフォルト値が設定済み）
+if ([string]::IsNullOrEmpty($CategoryName) -or [string]::IsNullOrEmpty($DisplayName) -or [string]::IsNullOrEmpty($Description)) {
+    Write-Error "カテゴリ名、表示名、説明は必須です"
     exit 1
 }
 
 # カテゴリ名の妥当性チェック（英数字とハイフンのみ）
-if ($CategoryName -notmatch "^[a-z0-9-]+$") {
-    Print-Error "カテゴリ名は小文字の英数字とハイフンのみ使用できます"
+if ($CategoryName -notmatch '^[a-z0-9-]+$') {
+    Write-Error "カテゴリ名は小文字の英数字とハイフンのみ使用できます"
     exit 1
 }
 
 # カラーコードの妥当性チェック
-if ($ColorCode -notmatch "^#[0-9a-fA-F]{6}$") {
-    Print-Error "カラーコードは #RRGGBB 形式で入力してください（例: #0078d4）"
+if ($ColorCode -notmatch '^#[0-9a-fA-F]{6}$') {
+    Write-Error "カラーコードは #RRGGBB 形式で入力してください（例: #0078d4）"
     exit 1
 }
 
 # 既存カテゴリとの重複チェック
 if (Test-Path $CategoryName) {
-    Print-Error "カテゴリ「$CategoryName」は既に存在します"
+    Write-Error "カテゴリ「$CategoryName」は既に存在します"
     exit 1
 }
 
-Print-Info "新しいカテゴリを追加します:"
+Write-Info "新しいカテゴリを追加します:"
 Write-Host "  カテゴリ名: $CategoryName"
 Write-Host "  表示名: $DisplayName"
 Write-Host "  説明: $Description"
@@ -87,49 +110,76 @@ Write-Host "  カラーコード: $ColorCode"
 Write-Host ""
 
 $confirm = Read-Host "続行しますか？ (y/N)"
-if ($confirm -notmatch "^[yY]$") {
-    Print-Warning "キャンセルしました"
+if ($confirm -notmatch '^[yY]$') {
+    Write-Warning "キャンセルしました"
     exit 0
 }
 
 # 1. カテゴリフォルダを作成
-Print-Info "カテゴリフォルダを作成しています..."
-New-Item -Path $CategoryName -ItemType Directory -Force | Out-Null
-Print-Success "カテゴリフォルダを作成しました: $CategoryName/"
+Write-Info "カテゴリフォルダを作成しています..."
+New-Item -ItemType Directory -Path $CategoryName -Force | Out-Null
+Write-Success "カテゴリフォルダを作成しました: $CategoryName/"
 
 # 2. index.htmlにCSSクラスを追加
-Print-Info "CSSスタイルを追加しています..."
+Write-Info "CSSスタイルを追加しています..."
 
-# index.htmlの内容を読み込み
-$indexContent = Get-Content "index.html" -Encoding UTF8
+# CSSマーカーコメントの行番号を動的に取得
+$cssContent = Get-Content "index.html"
+$cssMarkerLine = 0
+for ($i = 0; $i -lt $cssContent.Count; $i++) {
+    if ($cssContent[$i] -match "🚨 新しいカテゴリを追加する場合は下記の形式でCSS追加 🚨") {
+        $cssMarkerLine = $i + 1  # PowerShellは0ベース、行番号は1ベース
+        break
+    }
+}
 
-# 172行目の後にCSSを挿入
-$newCssLines = @(
-    "      .$CategoryName::before {",
+if ($cssMarkerLine -eq 0) {
+    Write-Error "CSSマーカーコメントが見つかりません"
+    exit 1
+}
+
+# マーカーコメントの直前に挿入
+$cssInsertLine = $cssMarkerLine - 1
+$cssToInsert = @(
+    "",
+    "      .$($CategoryName)::before {",
     "        background: $ColorCode;",
     "      }"
 )
 
-$updatedContent = @()
-for ($i = 0; $i -lt $indexContent.Length; $i++) {
-    $updatedContent += $indexContent[$i]
-    if ($i -eq 171) {  # 172行目の後（0ベースなので171）
-        $updatedContent += $newCssLines
+# ファイルの内容を取得し、指定位置に挿入
+$content = Get-Content "index.html"
+$newContent = @()
+$newContent += $content[0..($cssInsertLine-2)]  # マーカーコメントより前の行
+$newContent += $cssToInsert  # 挿入するCSS
+$newContent += $content[($cssInsertLine-1)..($content.Count-1)]  # マーカーコメント以降の行
+
+# ファイルに書き戻し
+$newContent | Set-Content "index.html" -Encoding UTF8
+
+Write-Success "CSSスタイルを追加しました (行番号: $cssInsertLine)"
+
+# 3. index.htmlにカテゴリカードを追加
+Write-Info "カテゴリカードを追加しています..."
+
+# HTMLマーカーコメントの行番号を動的に取得
+$htmlContent = Get-Content "index.html"
+$htmlMarkerLine = 0
+for ($i = 0; $i -lt $htmlContent.Count; $i++) {
+    if ($htmlContent[$i] -match "🚨 新しいカテゴリを追加する場合は下記の形式でHTML編集 🚨") {
+        $htmlMarkerLine = $i + 1  # PowerShellは0ベース、行番号は1ベース
+        break
     }
 }
 
-# ファイルに書き戻し
-$updatedContent | Out-File "index.html" -Encoding UTF8
-Print-Success "CSSスタイルを追加しました"
+if ($htmlMarkerLine -eq 0) {
+    Write-Error "HTMLマーカーコメントが見つかりません"
+    exit 1
+}
 
-# 3. index.htmlにカテゴリカードを追加
-Print-Info "カテゴリカードを追加しています..."
-
-# 再度index.htmlの内容を読み込み（CSSが追加されているため）
-$indexContent = Get-Content "index.html" -Encoding UTF8
-
-# 602行目の後にHTMLを挿入（CSS追加分を考慮して調整）
-$newHtmlLines = @(
+# マーカーコメントの直前に挿入
+$htmlInsertLine = $htmlMarkerLine - 1
+$htmlToInsert = @(
     "          <a href=`"./$CategoryName/`" class=`"platform-card $CategoryName`">",
     "            <h2 class=`"platform-name`">$DisplayName</h2>",
     "            <p class=`"platform-description`">",
@@ -141,27 +191,27 @@ $newHtmlLines = @(
     "              >",
     "              <span class=`"visit-button`">探索する →</span>",
     "            </div>",
-    "          </a>"
+    "          </a>",
+    ""
 )
 
-$updatedContent = @()
-for ($i = 0; $i -lt $indexContent.Length; $i++) {
-    $updatedContent += $indexContent[$i]
-    # CSS追加分（3行）を考慮して602 + 3 = 605行目の後
-    if ($i -eq 604) {
-        $updatedContent += $newHtmlLines
-    }
-}
+# ファイルの内容を取得し、指定位置に挿入
+$content = Get-Content "index.html"
+$newContent = @()
+$newContent += $content[0..($htmlInsertLine-2)]  # マーカーコメントより前の行
+$newContent += $htmlToInsert  # 挿入するHTML
+$newContent += $content[($htmlInsertLine-1)..($content.Count-1)]  # マーカーコメント以降の行
 
 # ファイルに書き戻し
-$updatedContent | Out-File "index.html" -Encoding UTF8
-Print-Success "カテゴリカードを追加しました"
+$newContent | Set-Content "index.html" -Encoding UTF8
+
+Write-Success "カテゴリカードを追加しました (行番号: $htmlInsertLine)"
 
 # 4. 完了メッセージとNext Steps
 Write-Host ""
-Print-Success "カテゴリ「$CategoryName」の追加が完了しました！"
+Write-Success "カテゴリ「$CategoryName」の追加が完了しました！"
 Write-Host ""
-Print-Info "Next Steps:"
+Write-Info "Next Steps:"
 Write-Host "1. $CategoryName/ フォルダに画像ファイル（PNG/SVG/JPG/JPEG/GIF）を配置してください"
 Write-Host "2. Git でコミットしてプッシュしてください:"
 Write-Host "   git add -A"
@@ -173,6 +223,6 @@ Write-Host "   - template/index.html を各カテゴリにコピー"
 Write-Host "   - icons.json、metadata.json、search-index.json を生成"
 Write-Host "   - GitHub Pages にデプロイ"
 Write-Host ""
-Print-Info "ファイル構造:"
+Write-Info "ファイル構造:"
 Write-Host "  $CategoryName/"
 Write-Host "  └── （ここに画像ファイルを配置）"

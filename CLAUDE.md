@@ -317,19 +317,30 @@ Unix/Linux/macOS の場合:
 
 # 例
 ./add-category.sh azure "Microsoft Azure" "Azure サービスの公式アイコンコレクション" "#0078d4"
+
+# カラーコード省略（デフォルト #000000 黒）
+./add-category.sh my-category "My Category" "説明文"
 ```
 
-Windows の場合:
-```cmd
+Windows PowerShell の場合:
+```powershell
 # インタラクティブモード
-add-category.bat
+.\add-category.ps1
 
-# コマンドライン引数モード
-add-category.bat [カテゴリ名] [表示名] [説明] [カラーコード]
+# コマンドライン引数モード（名前付きパラメータ）
+.\add-category.ps1 -CategoryName "azure" -DisplayName "Microsoft Azure" -Description "Azure サービスの公式アイコンコレクション" -ColorCode "#0078d4"
 
-# 例
-add-category.bat azure "Microsoft Azure" "Azure サービスの公式アイコンコレクション" "#0078d4"
+# カラーコード省略（デフォルト #000000 黒）
+.\add-category.ps1 -CategoryName "my-category" -DisplayName "My Category" -Description "説明文"
 ```
+
+
+**スクリプトの特徴:**
+- **動的挿入**: マーカーコメント（🚨）を検索して適切な位置に自動挿入
+- **カラーコードデフォルト値**: 未入力時は自動的に #000000（黒）を設定
+- **エラーハンドリング**: カテゴリ名・カラーコード・重複の完全チェック
+- **クロスプラットフォーム**: Unix/Linux/macOS（Bash）・Windows（PowerShell）対応
+- **行番号ハードコーディング回避**: index.htmlの構造変更に自動対応
 
 **重要**: スクリプト実行後も `.github/README.md` のカテゴリ表とソース表に新カテゴリの説明とソースを手動で追加してください。
 

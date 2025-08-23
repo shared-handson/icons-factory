@@ -88,29 +88,40 @@
 
 # 例：Azureカテゴリを追加
 ./add-category.sh azure "Microsoft Azure" "Azure サービスの公式アイコンコレクション" "#0078d4"
+
+# カラーコード省略（デフォルト #000000 黒）
+./add-category.sh my-category "My Category" "説明文"
 ```
 
-**Windows の場合:**
+**Windows PowerShell の場合:**
 
-```cmd
+```powershell
 # インタラクティブモード
-add-category.bat
+.\add-category.ps1
 
-# コマンドライン引数モード
-add-category.bat [カテゴリ名] [表示名] [説明] [カラーコード]
+# コマンドライン引数モード（名前付きパラメータ）
+.\add-category.ps1 -CategoryName "azure" -DisplayName "Microsoft Azure" -Description "Azure サービスの公式アイコンコレクション" -ColorCode "#0078d4"
 
-# 例：Azureカテゴリを追加
-add-category.bat azure "Microsoft Azure" "Azure サービスの公式アイコンコレクション" "#0078d4"
+# カラーコード省略（デフォルト #000000 黒）
+.\add-category.ps1 -CategoryName "my-category" -DisplayName "My Category" -Description "説明文"
 ```
 
-**重要**: スクリプト実行後も `.github/README.md` のカテゴリ表とソース表に新カテゴリの説明とソースを手動で追加してください。
+
+**スクリプトの特徴:**
+- **🎯 動的挿入**: マーカーコメント（🚨）を検索して適切な位置に自動挿入
+- **🎨 カラーコードデフォルト値**: 未入力時は自動的に #000000（黒）を設定
+- **🛡️ エラーハンドリング**: カテゴリ名・カラーコード・重複の完全チェック
+- **🌍 クロスプラットフォーム**: Unix/Linux/macOS（Bash）・Windows（PowerShell）対応
+- **🔄 行番号ハードコーディング回避**: index.htmlの構造変更に自動対応
 
 **スクリプトが自動実行する内容:**
 
 - ✅ カテゴリフォルダ作成
 - ✅ CSS スタイル追加（カラー指定）
-- ✅ HTML カード追加
+- ✅ HTML カード追加（動的検索で適切な位置に挿入）
 - ✅ 入力値検証とエラーハンドリング
+
+**重要**: スクリプト実行後も `.github/README.md` のカテゴリ表とソース表に新カテゴリの説明とソースを手動で追加してください。
 
 ### 📝 手動追加の場合
 
@@ -223,7 +234,7 @@ icons-factory/
 ├── .nojekyll                    # Jekyll処理無効化（GitHub Pages用）
 ├── CLAUDE.md                    # Claude Code用プロジェクト指示
 ├── add-category.sh              # カテゴリ追加自動化スクリプト（Unix/Linux/macOS）
-├── add-category.bat             # カテゴリ追加自動化スクリプト（Windows）
+├── add-category.ps1             # カテゴリ追加自動化スクリプト（Windows PowerShell）
 ├── index.html                   # メインページ（グローバル検索機能付き）
 ├── robots.txt                   # 検索エンジン除外設定（サイト・リポジトリ両方）
 ├── search-index.json            # 全カテゴリ統合検索用（自動生成）

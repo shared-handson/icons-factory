@@ -44,20 +44,31 @@ if [ "$#" -eq 0 ]; then
     echo
     
     # インタラクティブモード
-    read -p "カテゴリ名（フォルダ名）: " category_name
-    read -p "表示名: " display_name
-    read -p "説明: " description
-    read -p "カラーコード（例: #0078d4）: " color_code
+    read -r -p "カテゴリ名（フォルダ名）: " category_name
+    read -r -p "表示名: " display_name
+    read -r -p "説明: " description
+    read -r -p "カラーコード（例: #0078d4、未入力で #000000）: " color_code
+    
+    # カラーコードが未入力の場合はデフォルトを設定
+    if [ -z "$color_code" ]; then
+        color_code="#000000"
+        print_info "カラーコードが未入力のため、デフォルト値 #000000 (黒) を使用します"
+    fi
 else
     category_name=$1
     display_name=$2
     description=$3
-    color_code=$4
+    color_code=${4:-"#000000"}
+    
+    # コマンドライン引数でカラーコードが未指定の場合
+    if [ "$color_code" = "#000000" ] && [ "$#" -lt 4 ]; then
+        print_info "カラーコードが未指定のため、デフォルト値 #000000 (黒) を使用します"
+    fi
 fi
 
-# 入力値検証
-if [ -z "$category_name" ] || [ -z "$display_name" ] || [ -z "$description" ] || [ -z "$color_code" ]; then
-    print_error "すべての値を入力してください"
+# 入力値検証（カラーコードは既にデフォルト値が設定済み）
+if [ -z "$category_name" ] || [ -z "$display_name" ] || [ -z "$description" ]; then
+    print_error "カテゴリ名、表示名、説明は必須です"
     exit 1
 fi
 
@@ -86,7 +97,7 @@ echo "  説明: $description"
 echo "  カラーコード: $color_code"
 echo
 
-read -p "続行しますか？ (y/N): " confirm
+read -r -p "続行しますか？ (y/N): " confirm
 if [[ ! "$confirm" =~ ^[yY]$ ]]; then
     print_warning "キャンセルしました"
     exit 0
@@ -100,20 +111,36 @@ print_success "カテゴリフォルダを作成しました: $category_name/"
 # 2. index.htmlにCSSクラスを追加
 print_info "CSSスタイルを追加しています..."
 
-# CSSコメントの前に挿入
-sed -i "172a\\
+# CSSマーカーコメントの行番号を動的に取得
+css_marker_line=$(grep -n "🚨 新しいカテゴリを追加する場合は下記の形式でCSS追加 🚨" index.html | cut -d: -f1)
+if [ -z "$css_marker_line" ]; then
+    print_error "CSSマーカーコメントが見つかりません"
+    exit 1
+fi
+
+# マーカーコメントの直前に挿入
+css_insert_line=$((css_marker_line - 1))
+sed -i "${css_insert_line}a\\
       .$category_name::before {\\
         background: $color_code;\\
       }\\
 " index.html
 
-print_success "CSSスタイルを追加しました"
+print_success "CSSスタイルを追加しました (行番号: $css_insert_line)"
 
 # 3. index.htmlにカテゴリカードを追加
 print_info "カテゴリカードを追加しています..."
 
-# HTMLコメントの前に挿入
-sed -i "602a\\
+# HTMLマーカーコメントの行番号を動的に取得
+html_marker_line=$(grep -n "🚨 新しいカテゴリを追加する場合は下記の形式でHTML編集 🚨" index.html | cut -d: -f1)
+if [ -z "$html_marker_line" ]; then
+    print_error "HTMLマーカーコメントが見つかりません"
+    exit 1
+fi
+
+# マーカーコメントの直前に挿入
+html_insert_line=$((html_marker_line - 1))
+sed -i "${html_insert_line}a\\
           <a href=\"./$category_name/\" class=\"platform-card $category_name\">\\
             <h2 class=\"platform-name\">$display_name</h2>\\
             <p class=\"platform-description\">\\
@@ -128,7 +155,7 @@ sed -i "602a\\
           </a>\\
 " index.html
 
-print_success "カテゴリカードを追加しました"
+print_success "カテゴリカードを追加しました (行番号: $html_insert_line)"
 
 # 4. 完了メッセージとNext Steps
 echo
