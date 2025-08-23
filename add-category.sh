@@ -119,7 +119,7 @@ if [ -z "$css_marker_line" ]; then
 fi
 
 # マーカーコメントの直前に挿入
-css_insert_line=$((css_marker_line - 1))
+css_insert_line=$((css_marker_line - 2))
 sed -i "${css_insert_line}a\\
       .$category_name::before {\\
         background: $color_code;\\
@@ -139,7 +139,7 @@ if [ -z "$html_marker_line" ]; then
 fi
 
 # マーカーコメントの直前に挿入
-html_insert_line=$((html_marker_line - 1))
+html_insert_line=$((html_marker_line - 2))
 sed -i "${html_insert_line}a\\
           <a href=\"./$category_name/\" class=\"platform-card $category_name\">\\
             <h2 class=\"platform-name\">$display_name</h2>\\

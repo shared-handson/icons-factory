@@ -10,29 +10,39 @@
 
 ## 📦 アイコンカテゴリ
 
-| カテゴリ       | 説明                           |
-| -------------- | ------------------------------ |
-| **GCP**        | Google Cloud Platform サービス |
-| **AWS**        | Amazon Web Services サービス   |
-| **Kubernetes** | Kubernetes リソース            |
-| **CNCF**       | Cloud Native プロジェクト      |
-| **YAMAHA**    | YAMAHAネットワークアイコンなど |
-| **さくらインターネット**    | さくらインターネットアイコンセット |
-| **cisco**    | Ciscoアイコンセット |
-| **Commons**    | カテゴライズできない細かいアイコン |
+| カテゴリ                 | 説明                               |
+| ------------------------ | ---------------------------------- |
+| **GCP**                  | Google Cloud Platform サービス     |
+| **AWS**                  | Amazon Web Services サービス       |
+| **Kubernetes**           | Kubernetes リソース                |
+| **CNCF**                 | Cloud Native プロジェクト          |
+| **YAMAHA**               | YAMAHA ネットワークアイコンなど    |
+| **さくらインターネット** | さくらインターネットアイコンセット |
+| **cisco**                | Cisco アイコンセット               |
+| **デジタル庁**           | 汎用アイコン                       |
+| **Commons**              | カテゴライズできない細かいアイコン |
 
 ## 📊 アイコンソース
 
-| カテゴリ       | ソース                                                           |
-| -------------- | ---------------------------------------------------------------- |
-| **AWS**        | [AWS Icons](https://aws-icons.com/)                              |
-| **GCP**        | [GCP Icons](https://gcpicons.com/)                               |
-| **Kubernetes** | [Kubernetes Community](https://github.com/kubernetes/community/) |
-| **CNCF**       | [CNCF Artwork](https://github.com/cncf/artwork/)                 |
-| **YAMAHA**    | [YAMAHA - アイコン・外観写真ダウンロード](https://network.yamaha.com/support/download/tool) |
-| **さくらインターネット**    | [さくらのアイコンセット](https://knowledge.sakura.ad.jp/4724/) |
-| **cisco**    | [Cisco - Network Topology Icons](https://www.cisco.com/c/en/us/about/brand-center/network-topology-icons.html) |
-| **Commons**    | 各種オープンソースプロジェクト・企業ロゴ                        |
+| カテゴリ                 | ソース                                                                                                               |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| **AWS**                  | [AWS Icons](https://aws-icons.com/)                                                                                  |
+| **GCP**                  | [GCP Icons](https://gcpicons.com/)                                                                                   |
+| **Kubernetes**           | [Kubernetes Community](https://github.com/kubernetes/community/)                                                     |
+| **CNCF**                 | [CNCF Artwork](https://github.com/cncf/artwork/)                                                                     |
+| **YAMAHA**               | [YAMAHA - アイコン・外観写真ダウンロード](https://network.yamaha.com/support/download/tool)                          |
+| **さくらインターネット** | [さくらのアイコンセット](https://knowledge.sakura.ad.jp/4724/)                                                       |
+| **cisco**                | [Cisco - Network Topology Icons](https://www.cisco.com/c/en/us/about/brand-center/network-topology-icons.html)       |
+| **デジタル庁**           | [イラストレーション・アイコン素材](https://www.digital.go.jp/policies/servicedesign/designsystem/Illustration_Icons) |
+| **Commons**              | 各種オープンソースプロジェクト・企業ロゴ                                                                             |
+
+## 📝 ライセンス
+
+個人・身内利用向けのプライベートプロジェクト
+
+- 各アイコンは元のライセンスに従います
+- 個人・商用利用可能なアイコンのみを収集
+- 詳細は各プラットフォームの公式サイトをご確認ください
 
 ## ✨ 特徴
 
@@ -112,13 +122,13 @@
 .\add-category.ps1 -CategoryName "my-category" -DisplayName "My Category" -Description "説明文"
 ```
 
-
 **スクリプトの特徴:**
+
 - **🎯 動的挿入**: マーカーコメント（🚨）を検索して適切な位置に自動挿入
 - **🎨 カラーコードデフォルト値**: 未入力時は自動的に #000000（黒）を設定
 - **🛡️ エラーハンドリング**: カテゴリ名・カラーコード・重複の完全チェック
 - **🌍 クロスプラットフォーム**: Unix/Linux/macOS（Bash）・Windows（PowerShell）対応
-- **🔄 行番号ハードコーディング回避**: index.htmlの構造変更に自動対応
+- **🔄 行番号ハードコーディング回避**: index.html の構造変更に自動対応
 
 **スクリプトが自動実行する内容:**
 
@@ -311,14 +321,6 @@ icons-factory/
 - **二重隠蔽**: サイト + リポジトリ両方を検索から隠蔽
 - **外部サービス連携なし**: トラッキング・解析なし
 - **マーケティング要素なし**: 完全プライベート仕様
-
-## 📝 ライセンス
-
-個人・身内利用向けのプライベートプロジェクト
-
-- 各アイコンは元のライセンスに従います
-- 個人・商用利用可能なアイコンのみを収集
-- 詳細は各プラットフォームの公式サイトをご確認ください
 
 ---
 
