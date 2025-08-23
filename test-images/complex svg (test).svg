@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200">
-  <rect width="300" height="200" fill="lightblue"/>
-  <circle cx="150" cy="100" r="50" fill="orange"/>
-  <text x="150" y="120" text-anchor="middle" fill="black" font-size="14">Complex SVG</text>
-</svg>
