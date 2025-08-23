@@ -18,6 +18,16 @@
 | **CNCF**       | Cloud Native プロジェクト      |
 | **Logo**       | 各社ロゴアイコン               |
 
+## 📊 アイコンソース
+
+| カテゴリ       | ソース                                                           |
+| -------------- | ---------------------------------------------------------------- |
+| **AWS**        | [AWS Icons](https://aws-icons.com/)                              |
+| **GCP**        | [GCP Icons](https://gcpicons.com/)                               |
+| **Kubernetes** | [Kubernetes Community](https://github.com/kubernetes/community/) |
+| **CNCF**       | [CNCF Artwork](https://github.com/cncf/artwork/)                 |
+| **Logo**       | [icon-collection](https://github.com/benc-uk/icon-collection)    |
+
 ## ✨ 特徴
 
 - **🚀 高速**: GitHub Pages + 静的サイト生成
@@ -31,7 +41,7 @@
 - **📱 レスポンシブ**: モバイル対応 UI
 - **🔍 リアルタイム検索**:
   - **トップページ**: 全カテゴリ横断検索（全アイコンを一括検索）
-    - **検索結果アクション**: 各アイコンにURLコピー・ダウンロードボタン付き
+    - **検索結果アクション**: 各アイコンに URL コピー・ダウンロードボタン付き
     - **直接操作**: カテゴリページ経由なしで即座にアイコンを操作可能
   - **各カテゴリページ**: カテゴリ内絞り込み検索
   - **検索機能**: 300ms デバウンス、ハイライト表示、検索統計
@@ -47,7 +57,7 @@
 - **Pure HTML/CSS/JavaScript** - フレームワーク不使用
 - **レスポンシブデザイン** - CSS Grid + Flexbox
 - **モダンブラウザ対応** - ES6+、Clipboard API、Fetch API、Blob API
-- **UI/UX機能**:
+- **UI/UX 機能**:
   - トースト通知システム
   - 検索結果インタラクション
   - ダウンロードプログレス表示
@@ -65,12 +75,35 @@
 
 ## 🚀 新しいカテゴリの追加方法
 
+### 🤖 自動化スクリプト使用（推奨）
+
+**基本使用法:**
+
+```bash
+# インタラクティブモード
+./add-category.sh
+
+# コマンドライン引数モード
+./add-category.sh [カテゴリ名] [表示名] [説明] [カラーコード]
+
+# 例：Azureカテゴリを追加
+./add-category.sh azure "Microsoft Azure" "Azure サービスの公式アイコンコレクション" "#0078d4"
+```
+
+**スクリプトが自動実行する内容:**
+
+- ✅ カテゴリフォルダ作成
+- ✅ CSS スタイル追加（カラー指定）
+- ✅ HTML カード追加
+- ✅ 入力値検証とエラーハンドリング
+
+### 📝 手動追加の場合
+
 ### 1. フォルダ作成とアイコン配置
 
 ```bash
 # 例：Azureカテゴリを追加する場合
-cp -r template/ azure/
-cd azure/
+mkdir azure/
 
 # アイコンファイルを配置（全形式対応）
 # PNG/SVG/JPG/JPEG/GIF ファイルをここに置く
@@ -211,15 +244,6 @@ icons-factory/
 - **レスポンシブデザイン必須**: モバイルファースト
 - **エラーハンドリング必須**: ネットワークエラー対応
 
-## 📊 アイコンソース
-
-| カテゴリ       | ソース                                                                            |
-| -------------- | --------------------------------------------------------------------------------- |
-| **AWS**        | [AWS Icons](https://aws-icons.com/)                                               |
-| **GCP**        | [GCP Icons](https://gcpicons.com/)                                                |
-| **Kubernetes** | [Kubernetes Community](https://github.com/kubernetes/community/tree/master/icons) |
-| **CNCF**       | [CNCF Artwork](https://github.com/cncf/artwork/tree/main)                         |
-
 ## 🤝 コントリビューション
 
 1. **Fork** このリポジトリ
@@ -233,18 +257,20 @@ icons-factory/
 ### 検索エンジン対策（プライベート利用向け）
 
 **GitHub Pages サイト隠蔽:**
+
 - **robots.txt**: 全ページアクセス禁止 (`Disallow: /`)
 - **メタタグ**: `noindex, nofollow, noarchive, nosnippet` 設定
 - **SEO メタ情報**: description、keywords、og:、twitter タグなし
 - **sitemap.xml**: 存在しない（検索エンジンに構造を教えない）
 
-**GitHubリポジトリ隠蔽:**
-- **.nojekyll**: Jekyll処理を無効化、静的ファイル扱い
+**GitHub リポジトリ隠蔽:**
+
+- **.nojekyll**: Jekyll 処理を無効化、静的ファイル扱い
 - **.gitattributes**: 言語検出制限、バイナリファイル検索除外
-- **robots.txt**: GitHubページ用の追加隠蔽設定
+- **robots.txt**: GitHub ページ用の追加隠蔽設定
   ```
   Disallow: /*.git*
-  Disallow: /README.md  
+  Disallow: /README.md
   Disallow: /.github/
   ```
 
