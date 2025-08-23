@@ -113,7 +113,6 @@
         height: 8px;
       }
 
-
       .platform-name {
         font-size: 1.5rem;
         font-weight: 600;
@@ -155,7 +154,6 @@
       }
 
       /* プラットフォーム固有のカラー */
-      /* 🚨 新しいカテゴリを追加する場合は下記の形式でCSS追加 🚨 */
       .gcp::before {
         background: #4285f4;
       }
@@ -175,10 +173,11 @@
       .logo::before {
         background: #565656;
       }
-
-      /* 例: Azure カテゴリを追加する場合
+      /* 
+        🚨 新しいカテゴリを追加する場合は下記の形式でCSS追加 🚨
+        例: Azure カテゴリを追加する場合
         .azure::before { background: #0078d4; }
-        */
+      */
 
       .features {
         background: white;
@@ -535,42 +534,24 @@
         <!-- 検索機能 -->
         <div class="search-container">
           <div class="search-box">
-            <input 
-              type="text" 
-              id="global-search" 
-              class="search-input" 
+            <input
+              type="text"
+              id="global-search"
+              class="search-input"
               placeholder="全カテゴリからアイコンを検索..."
               autocomplete="off"
-            >
+            />
             <div class="search-icon">🔍</div>
           </div>
-          <div id="search-results" class="search-results" style="display: none;"></div>
+          <div
+            id="search-results"
+            class="search-results"
+            style="display: none"
+          ></div>
         </div>
       </header>
 
       <main>
-        <!-- 
-            ========================================
-            🚨 新しいカテゴリを追加する場合はここに追加 🚨
-            ========================================
-            
-            例: Azure カテゴリを追加する場合
-            <a href="./azure/" class="platform-card azure">
-                <h2 class="platform-name">Microsoft Azure</h2>
-                <p class="platform-description">
-                    Azure サービスの公式アイコンコレクション
-                </p>
-                <div class="platform-stats">
-                    <span class="icon-count" data-category="azure">... アイコン</span>
-                    <span class="visit-button">探索する →</span>
-                </div>
-            </a>
-            
-            さらに以下も必要:
-            1. CSS追加: .azure::before { background: #0078d4; }
-            2. JavaScript追加: getCategoryDisplayName関数内に 'azure': 'Microsoft Azure'
-            ========================================
-            -->
         <div class="platforms-grid">
           <a href="./gcp/" class="platform-card gcp">
             <h2 class="platform-name">Google Cloud Platform</h2>
@@ -601,7 +582,9 @@
               Kubernetesリソースアイコン。Pod、Service、Deployment、ConfigMapなど。
             </p>
             <div class="platform-stats">
-              <span class="icon-count" data-category="kubernetes">... アイコン</span>
+              <span class="icon-count" data-category="kubernetes"
+                >... アイコン</span
+              >
               <span class="visit-button">探索する →</span>
             </div>
           </a>
@@ -627,11 +610,20 @@
           </a>
 
           <!-- 
-                ========================================
-                🚨 新しいカテゴリカードはここより上に追加 🚨
-                ========================================
-                上記のCNCFカードをコピー＆ペーストして編集してください
-                -->
+            🚨 新しいカテゴリを追加する場合は下記の形式でHTML編集 🚨
+            
+            例: Azure カテゴリを追加する場合
+            <a href="./azure/" class="platform-card azure">
+                <h2 class="platform-name">Microsoft Azure</h2>
+                <p class="platform-description">
+                    Azure サービスの公式アイコンコレクション
+                </p>
+                <div class="platform-stats">
+                    <span class="icon-count" data-category="azure">... アイコン</span>
+                    <span class="visit-button">探索する →</span>
+                </div>
+            </a>
+          -->
         </div>
 
         <section class="features">
@@ -669,7 +661,7 @@
         <p>個人利用向けアイコンコレクション</p>
       </footer>
     </div>
-    
+
     <!-- トースト通知 -->
     <div id="toast" class="toast"></div>
     <script>
@@ -678,12 +670,12 @@
       let searchTimeout;
 
       // トースト表示
-      function showToast(message, type = 'info') {
-        const toast = document.getElementById('toast');
+      function showToast(message, type = "info") {
+        const toast = document.getElementById("toast");
         toast.textContent = message;
         toast.className = `toast show ${type}`;
         setTimeout(() => {
-          toast.classList.remove('show');
+          toast.classList.remove("show");
         }, 3000);
       }
 
@@ -692,54 +684,56 @@
         const url = `${window.location.origin}${window.location.pathname}${category}/${filename}`;
         try {
           await navigator.clipboard.writeText(url);
-          showToast('URLをコピーしました', 'success');
+          showToast("URLをコピーしました", "success");
         } catch (err) {
-          showToast('コピーに失敗しました', 'error');
+          showToast("コピーに失敗しました", "error");
         }
       }
 
       // ダウンロード機能
       async function downloadIcon(category, filename) {
         try {
-          showToast('ダウンロード準備中...', 'info');
+          showToast("ダウンロード準備中...", "info");
           const response = await fetch(`./${category}/${filename}`);
-          
+
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
-          
+
           const blob = await response.blob();
           const url = window.URL.createObjectURL(blob);
-          
-          const a = document.createElement('a');
+
+          const a = document.createElement("a");
           a.href = url;
           a.download = filename;
-          a.style.display = 'none';
+          a.style.display = "none";
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
-          
+
           window.URL.revokeObjectURL(url);
-          showToast('ダウンロードを開始しました', 'success');
+          showToast("ダウンロードを開始しました", "success");
         } catch (error) {
-          console.error('ダウンロードエラー:', error);
-          showToast('ダウンロードに失敗しました', 'error');
+          console.error("ダウンロードエラー:", error);
+          showToast("ダウンロードに失敗しました", "error");
         }
       }
 
       // 検索インデックスを読み込み
       async function loadSearchIndex() {
         try {
-          const response = await fetch('./search-index.json');
+          const response = await fetch("./search-index.json");
           if (!response.ok) {
-            console.warn('検索インデックスを読み込めませんでした');
+            console.warn("検索インデックスを読み込めませんでした");
             return;
           }
           const data = await response.json();
           searchIndex = data.icons || [];
-          console.log(`検索インデックスを読み込みました: ${searchIndex.length}件`);
+          console.log(
+            `検索インデックスを読み込みました: ${searchIndex.length}件`
+          );
         } catch (error) {
-          console.error('検索インデックスの読み込みに失敗しました:', error);
+          console.error("検索インデックスの読み込みに失敗しました:", error);
         }
       }
 
@@ -750,7 +744,7 @@
           return;
         }
 
-        const results = searchIndex.filter(icon => 
+        const results = searchIndex.filter((icon) =>
           icon.name.toLowerCase().includes(query.toLowerCase())
         );
 
@@ -759,40 +753,54 @@
 
       // 検索結果表示
       function displaySearchResults(results, query) {
-        const resultsContainer = document.getElementById('search-results');
-        
+        const resultsContainer = document.getElementById("search-results");
+
         if (results.length === 0) {
           resultsContainer.innerHTML = `
             <div class="search-no-results">
               <div class="search-no-results-icon">🔍</div>
-              <div>「${escapeHtml(query)}」にマッチするアイコンが見つかりません</div>
+              <div>「${escapeHtml(
+                query
+              )}」にマッチするアイコンが見つかりません</div>
             </div>
           `;
         } else {
-          const resultHtml = results.slice(0, 20).map(icon => {
-            const highlightedName = highlightText(icon.name, query);
-            return `
+          const resultHtml = results
+            .slice(0, 20)
+            .map((icon) => {
+              const highlightedName = highlightText(icon.name, query);
+              return `
               <div class="search-result-item">
-                <img src="./${icon.path}" alt="${escapeHtml(icon.name)}" class="search-result-icon">
+                <img src="./${icon.path}" alt="${escapeHtml(
+                icon.name
+              )}" class="search-result-icon">
                 <div class="search-result-content">
                   <div class="search-result-name">${highlightedName}</div>
-                  <div class="search-result-category">${getCategoryDisplayName(icon.category)}</div>
+                  <div class="search-result-category">${getCategoryDisplayName(
+                    icon.category
+                  )}</div>
                 </div>
                 <div class="search-result-actions">
-                  <button class="search-action-btn copy" onclick="copyIconUrl('${icon.category}', '${icon.filename}')">
+                  <button class="search-action-btn copy" onclick="copyIconUrl('${
+                    icon.category
+                  }', '${icon.filename}')">
                     📋 URL
                   </button>
-                  <button class="search-action-btn download" onclick="downloadIcon('${icon.category}', '${icon.filename}')">
+                  <button class="search-action-btn download" onclick="downloadIcon('${
+                    icon.category
+                  }', '${icon.filename}')">
                     💾 DL
                   </button>
                 </div>
               </div>
             `;
-          }).join('');
+            })
+            .join("");
 
-          const header = results.length > 20 ? 
-            `${results.length}件中上位20件を表示` : 
-            `${results.length}件見つかりました`;
+          const header =
+            results.length > 20
+              ? `${results.length}件中上位20件を表示`
+              : `${results.length}件見つかりました`;
 
           resultsContainer.innerHTML = `
             <div class="search-result-header">${header}</div>
@@ -800,99 +808,99 @@
           `;
         }
 
-        resultsContainer.style.display = 'block';
+        resultsContainer.style.display = "block";
       }
 
       // 検索結果を非表示
       function hideSearchResults() {
-        document.getElementById('search-results').style.display = 'none';
+        document.getElementById("search-results").style.display = "none";
       }
 
       // テキストハイライト
       function highlightText(text, query) {
         if (!query.trim()) return escapeHtml(text);
-        
+
         const escapedText = escapeHtml(text);
         const escapedQuery = escapeHtml(query);
-        const regex = new RegExp(`(${escapedQuery})`, 'gi');
-        
+        const regex = new RegExp(`(${escapedQuery})`, "gi");
+
         return escapedText.replace(regex, '<span class="highlight">$1</span>');
       }
 
       // HTMLエスケープ
       function escapeHtml(text) {
-        const div = document.createElement('div');
+        const div = document.createElement("div");
         div.textContent = text;
         return div.innerHTML;
       }
 
       // カテゴリ表示名取得
       function getCategoryDisplayName(category) {
-        const categoryNames = {
-          'gcp': 'Google Cloud Platform',
-          'aws': 'Amazon Web Services', 
-          'kubernetes': 'Kubernetes',
-          'cncf': 'CNCF Projects',
-          'logo': 'Company Logos'
-        };
-        return categoryNames[category] || category.toUpperCase();
+        return category;
       }
 
       // メタデータを読み込んで動的に数値を更新
       async function loadMetadata() {
         try {
-          const response = await fetch('./metadata.json');
+          const response = await fetch("./metadata.json");
           if (!response.ok) {
-            console.warn('メタデータを読み込めませんでした');
+            console.warn("メタデータを読み込めませんでした");
             return;
           }
           const metadata = await response.json();
-          
+
           // 総アイコン数と総カテゴリ数を更新
-          const totalIconsElement = document.getElementById('total-icons');
-          const totalCategoriesElement = document.getElementById('total-categories');
-          
+          const totalIconsElement = document.getElementById("total-icons");
+          const totalCategoriesElement =
+            document.getElementById("total-categories");
+
           if (totalIconsElement && metadata.total) {
-            totalIconsElement.textContent = metadata.total.icons.toLocaleString();
+            totalIconsElement.textContent =
+              metadata.total.icons.toLocaleString();
           }
-          
+
           if (totalCategoriesElement && metadata.total) {
             totalCategoriesElement.textContent = metadata.total.categories;
           }
-          
+
           // 各カテゴリのアイコン数を更新
           if (metadata.categories) {
-            document.querySelectorAll('.icon-count[data-category]').forEach(element => {
-              const category = element.getAttribute('data-category');
-              if (metadata.categories[category]) {
-                const count = metadata.categories[category].count;
-                element.textContent = `${count} アイコン`;
-              }
-            });
+            document
+              .querySelectorAll(".icon-count[data-category]")
+              .forEach((element) => {
+                const category = element.getAttribute("data-category");
+                if (metadata.categories[category]) {
+                  const count = metadata.categories[category].count;
+                  element.textContent = `${count} アイコン`;
+                }
+              });
           }
-          
-          console.log(`メタデータを読み込みました: ${metadata.total.icons}アイコン、${metadata.total.categories}カテゴリ`);
+
+          console.log(
+            `メタデータを読み込みました: ${metadata.total.icons}アイコン、${metadata.total.categories}カテゴリ`
+          );
         } catch (error) {
-          console.error('メタデータの読み込みに失敗しました:', error);
+          console.error("メタデータの読み込みに失敗しました:", error);
           // フォールバック値を設定
-          const totalIconsElement = document.getElementById('total-icons');
-          const totalCategoriesElement = document.getElementById('total-categories');
-          
-          if (totalIconsElement) totalIconsElement.textContent = '1000+';
-          if (totalCategoriesElement) totalCategoriesElement.textContent = '5';
+          const totalIconsElement = document.getElementById("total-icons");
+          const totalCategoriesElement =
+            document.getElementById("total-categories");
+
+          if (totalIconsElement) totalIconsElement.textContent = "1000+";
+          if (totalCategoriesElement) totalCategoriesElement.textContent = "5";
         }
       }
 
       // イベントリスナー設定
-      document.addEventListener('DOMContentLoaded', function() {
+      document.addEventListener("DOMContentLoaded", function () {
         loadSearchIndex();
         loadMetadata();
-        
-        const searchInput = document.getElementById('global-search');
-        const searchResults = document.getElementById('search-results');
-        
+
+        const searchInput = document.getElementById("global-search");
+        const searchResults = document.getElementById("search-results");
+
         // リアルタイム検索
-        searchInput.addEventListener('input', function(e) {
+        searchInput.addEventListener("input", function (e) {
           clearTimeout(searchTimeout);
           searchTimeout = setTimeout(() => {
             performSearch(e.target.value);
@@ -900,15 +908,15 @@
         });
 
         // クリック外で検索結果を非表示
-        document.addEventListener('click', function(e) {
-          if (!e.target.closest('.search-container')) {
+        document.addEventListener("click", function (e) {
+          if (!e.target.closest(".search-container")) {
             hideSearchResults();
           }
         });
 
         // ESCキーで検索結果を非表示
-        document.addEventListener('keydown', function(e) {
-          if (e.key === 'Escape') {
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape") {
             hideSearchResults();
             searchInput.blur();
           }

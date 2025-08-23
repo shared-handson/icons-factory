@@ -100,12 +100,7 @@ cd azure/
 }
 ```
 
-検索機能のカテゴリ表示名も更新：
-
-```javascript
-// getCategoryDisplayName 関数内に追加
-'azure': 'Microsoft Azure'
-```
+検索機能では自動的にフォルダ名が表示されます。
 
 ### 3. 自動化された機能
 
@@ -173,27 +168,33 @@ npx serve
 
 ```
 icons-factory/
+├── .gitattributes               # GitHub言語検出・バイナリファイル制限
 ├── .gitignore                   # 中間ファイルを除外
+├── .nojekyll                    # Jekyll処理無効化（GitHub Pages用）
+├── CLAUDE.md                    # Claude Code用プロジェクト指示
 ├── index.html                   # メインページ（グローバル検索機能付き）
+├── robots.txt                   # 検索エンジン除外設定（サイト・リポジトリ両方）
 ├── search-index.json            # 全カテゴリ統合検索用（自動生成）
 ├── metadata.json                # アイコン統計情報（自動生成）
-├── robots.txt                   # 検索エンジン除外設定
-├── gcp/                         # GCP アイコンカテゴリ
+├── gcp/                         # GCP アイコンカテゴリ（216個）
 │   ├── *.png                    # 最適化済みアイコン
 │   ├── icons.json               # 自動生成アイコンリスト
 │   └── index.html               # カテゴリページ（カテゴリ内検索機能付き、自動生成）
-├── aws/                         # AWS アイコンカテゴリ
-├── kubernetes/                  # Kubernetes アイコンカテゴリ
-├── cncf/                        # CNCF アイコンカテゴリ
-├── logo/                        # 各社ロゴカテゴリ
+├── aws/                         # AWS アイコンカテゴリ（307個）
+├── kubernetes/                  # Kubernetes アイコンカテゴリ（40個）
+├── cncf/                        # CNCF アイコンカテゴリ（197個）
+├── logo/                        # 各社ロゴカテゴリ（111個）
 ├── template/                    # 新カテゴリ用テンプレート
 │   ├── index.html               # マスターテンプレート（検索・URL・DL機能統合）
 │   └── README.md                # カテゴリ追加手順
-└── .github/workflows/
-    └── main.yml                 # 統合ワークフロー（画像変換・JSON生成・デプロイ）
+└── .github/
+    ├── README.md                # プロジェクト説明（このファイル）
+    └── workflows/
+        └── main.yml             # 統合ワークフロー（画像変換・JSON生成・デプロイ）
 
 注意: icons.json、search-index.json、metadata.json、*/index.html は
       デプロイ時のみ生成される中間ファイルです
+総アイコン数: 871個（2025年8月時点）
 ```
 
 ## 📋 ルール・規約

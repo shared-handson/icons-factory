@@ -89,26 +89,32 @@ const icons = data.icons;
 
 ```
 icons-factory/
+├── .gitattributes               # GitHub言語検出・バイナリファイル制限
 ├── .gitignore                   # icons.json、search-index.json と各カテゴリのindex.htmlを除外（templateは保持）
+├── .nojekyll                    # Jekyll処理無効化（GitHub Pages用）
+├── CLAUDE.md                    # Claude Code用プロジェクト指示（このファイル）
 ├── index.html                   # メインページ（手動更新）
-├── gcp/
+├── robots.txt                   # 検索エンジン除外設定（サイト・リポジトリ両方）
+├── gcp/                         # GCPアイコンカテゴリ（216個）
 │   └── *.png                    # GCPアイコン（最適化済み）
-├── aws/
+├── aws/                         # AWSアイコンカテゴリ（307個）
 │   └── *.png                    # AWSアイコン（最適化済み）
-├── kubernetes/
+├── kubernetes/                  # Kubernetesアイコンカテゴリ（40個）
 │   └── *.png                    # Kubernetesアイコン（最適化済み）
-├── cncf/
-│   ├── *.png                    # CNCFプロジェクトアイコン（最適化済み）
-│   └── projects/                # 元のCNCF構造（参照用）
-├── logo/
+├── cncf/                        # CNCFプロジェクトアイコンカテゴリ（197個）
+│   └── *.png                    # CNCFプロジェクトアイコン（最適化済み）
+├── logo/                        # 各社ロゴカテゴリ（111個）
 │   └── *.png                    # 各社ロゴアイコン（最適化済み）
 ├── template/                    # 新カテゴリ用テンプレート
 │   ├── index.html               # マスターテンプレート（デプロイ時に各カテゴリにコピー）
 │   └── README.md                # カテゴリ追加手順
-└── .github/workflows/
-    └── main.yml                 # 統合ワークフロー（変換・デプロイ）
+└── .github/
+    ├── README.md                # プロジェクト説明
+    └── workflows/
+        └── main.yml             # 統合ワークフロー（変換・デプロイ）
 
-注意: icons.json、search-index.json、index.html（各カテゴリ）はデプロイ時のみ生成される一時ファイルです
+注意: icons.json、search-index.json、metadata.json、index.html（各カテゴリ）はデプロイ時のみ生成される一時ファイルです
+総アイコン数: 871個（2025年8月時点）
 ```
 
 ## GitHub Actions 仕様
@@ -384,4 +390,3 @@ GitHub Actions で画像変換時に、URL 安全でないファイル名を自�
   - 人間のインタラクティブな入力を求めてもよい
   - トップページ（index.html）へのカード追加
   - CSS クラスの生成
-  - カテゴリ表示名の設定
