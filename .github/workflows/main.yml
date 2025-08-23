@@ -107,18 +107,12 @@ jobs:
           converted_files=0
           deleted_svgs=0
 
-          # SVG処理関数
+          # SVG処理関数（サニタイズ済みファイル名で処理）
           process_svg_files() {
             for svg_file in *.svg; do
               if [ -f "$svg_file" ]; then
-                # ファイル名をサニタイズしてPNG名を生成
-                sanitized_name=$(sanitize_filename "$svg_file")
-                png_file="${sanitized_name%.svg}.png"
-                
-                # ファイル名が変更された場合は通知
-                if [ "$svg_file" != "$sanitized_name" ]; then
-                  echo "🔧 Sanitized filename: $svg_file -> $sanitized_name"
-                fi
+                # サニタイズ済みなのでそのままPNG名を生成
+                png_file="${svg_file%.svg}.png"
                 
                 echo "Converting: $svg_file -> $png_file"
                 
@@ -173,6 +167,62 @@ jobs:
           echo "   - Total files converted: $converted_files"
           echo "   - Total SVGs deleted: $deleted_svgs"
 
+      - name: Sanitize image filenames
+        run: |
+          # 共通関数を読み込み
+          source /tmp/common_functions.sh
+          sanitized_files=0
+
+          # ファイル名サニタイズ処理関数
+          sanitize_image_filenames() {
+            local folder_sanitized=0
+            # 各拡張子を個別に処理してスペースを含むファイル名に対応
+            for extension in jpg jpeg gif svg; do
+              for img_file in *.$extension; do
+                if [ -f "$img_file" ]; then
+                  # サニタイズされたファイル名を生成
+                  sanitized_name=$(sanitize_filename "$img_file")
+                  
+                  # ファイル名が変更される場合はリネーム
+                  if [ "$img_file" != "$sanitized_name" ]; then
+                    echo "🔧 Sanitizing filename: $img_file -> $sanitized_name"
+                    mv "$img_file" "$sanitized_name"
+                    if [ $? -eq 0 ]; then
+                      echo "✅ Successfully renamed: $img_file"
+                      folder_sanitized=$((folder_sanitized + 1))
+                    else
+                      echo "❌ Failed to rename: $img_file"
+                    fi
+                  fi
+                fi
+              done
+            done
+            echo "Sanitized $folder_sanitized files in this folder"
+          }
+
+          # ファイル名サニタイズ処理実行
+          for folder in */; do
+            if [ -d "$folder" ]; then
+              folder_name=$(basename "$folder")
+              
+              # 除外フォルダをスキップ
+              if should_skip_folder "$folder_name"; then
+                continue
+              fi
+              
+              # 対象画像ファイルが存在するかチェック
+              if find "$folder" -maxdepth 1 \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.gif" -o -name "*.svg" \) -type f | grep -q .; then
+                echo "Sanitizing filenames in: $folder_name"
+                cd "$folder"
+                sanitize_image_filenames
+                cd ..
+              fi
+            fi
+          done
+
+          echo "📊 Filename Sanitization Summary:"
+          echo "   - Total files sanitized: $sanitized_files"
+
       - name: Convert other image formats to PNG
         run: |
           # 共通関数を読み込み
@@ -180,18 +230,12 @@ jobs:
           converted_files=0
           deleted_images=0
 
-          # その他画像処理関数
+          # その他画像処理関数（サニタイズ済みファイル名で処理）
           process_other_images() {
             for img_file in *.jpg *.jpeg *.gif; do
               if [ -f "$img_file" ]; then
-                # ファイル名をサニタイズしてPNG名を生成
-                sanitized_name=$(sanitize_filename "$img_file")
-                png_file="${sanitized_name%.*}.png"
-                
-                # ファイル名が変更された場合は通知
-                if [ "$img_file" != "$sanitized_name" ]; then
-                  echo "🔧 Sanitized filename: $img_file -> $sanitized_name"
-                fi
+                # サニタイズ済みなのでそのままPNG名を生成
+                png_file="${img_file%.*}.png"
                 
                 echo "Converting: $img_file -> $png_file"
                 
@@ -250,19 +294,10 @@ jobs:
           source /tmp/common_functions.sh
           optimized_files=0
 
-          # PNG最適化処理関数
+          # PNG最適化処理関数（サニタイズ済みファイル名で処理）
           process_png_optimization() {
             for png_file in *.png; do
               if [ -f "$png_file" ]; then
-                # ファイル名をサニタイズ
-                sanitized_name=$(sanitize_filename "$png_file")
-                
-                # ファイル名が変更された場合はリネーム
-                if [ "$png_file" != "$sanitized_name" ]; then
-                  echo "🔧 Sanitized PNG filename: $png_file -> $sanitized_name"
-                  mv "$png_file" "$sanitized_name"
-                  png_file="$sanitized_name"
-                fi
                 
                 # 画像の寸法を取得
                 dimensions=$(identify -format "%wx%h" "$png_file" 2>/dev/null)
