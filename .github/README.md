@@ -16,6 +16,9 @@
 | **AWS**        | Amazon Web Services サービス   |
 | **Kubernetes** | Kubernetes リソース            |
 | **CNCF**       | Cloud Native プロジェクト      |
+| **YAMAHA**    | YAMAHAネットワークアイコンなど |
+| **さくらインターネット**    | さくらインターネットアイコンセット |
+| **cisco**    | Ciscoアイコンセット |
 | **Commons**    | カテゴライズできない細かいアイコン |
 
 ## 📊 アイコンソース
@@ -26,6 +29,9 @@
 | **GCP**        | [GCP Icons](https://gcpicons.com/)                               |
 | **Kubernetes** | [Kubernetes Community](https://github.com/kubernetes/community/) |
 | **CNCF**       | [CNCF Artwork](https://github.com/cncf/artwork/)                 |
+| **YAMAHA**    | [YAMAHA - アイコン・外観写真ダウンロード](https://network.yamaha.com/support/download/tool) |
+| **さくらインターネット**    | [さくらのアイコンセット](https://knowledge.sakura.ad.jp/4724/) |
+| **cisco**    | [Cisco - Network Topology Icons](https://www.cisco.com/c/en/us/about/brand-center/network-topology-icons.html) |
 | **Commons**    | 各種オープンソースプロジェクト・企業ロゴ                        |
 
 ## ✨ 特徴
