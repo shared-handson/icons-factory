@@ -2,7 +2,15 @@
 chcp 65001 > nul
 setlocal enabledelayedexpansion
 
+REM デバッグモード（問題解決後にコメントアウト）
+echo デバッグ: スクリプト開始
+
 REM 引数チェック
+echo デバッグ: 引数1=[%~1]
+echo デバッグ: 引数2=[%~2]
+echo デバッグ: 引数3=[%~3]
+echo デバッグ: 引数4=[%~4]
+
 if "%~1"=="" (
     echo ℹ️  Icons Factory カテゴリ追加スクリプト
     echo.
@@ -17,54 +25,73 @@ if "%~1"=="" (
     echo.
     
     REM インタラクティブモード
-    set /p category_name="カテゴリ名（フォルダ名）: "
-    set /p display_name="表示名: "
-    set /p description="説明: "
-    set /p color_code="カラーコード（例: #0078d4）: "
+    set /p "category_name=カテゴリ名（フォルダ名）: "
+    set /p "display_name=表示名: "
+    set /p "description=説明: "
+    set /p "color_code=カラーコード（例: #0078d4）: "
+    echo デバッグ: インタラクティブ入力完了
 ) else (
-    set category_name=%~1
-    set display_name=%~2
-    set description=%~3
-    set color_code=%~4
+    set "category_name=%~1"
+    set "display_name=%~2"
+    set "description=%~3"
+    set "color_code=%~4"
+    echo デバッグ: コマンドライン引数使用
 )
 
 REM 入力値検証
+echo デバッグ: 入力値検証開始
+echo デバッグ: category_name=[%category_name%]
+echo デバッグ: display_name=[%display_name%]
+echo デバッグ: description=[%description%]
+echo デバッグ: color_code=[%color_code%]
+
 if "%category_name%"=="" (
     echo ❌ カテゴリ名を入力してください
+    pause
     exit /b 1
 )
 if "%display_name%"=="" (
     echo ❌ 表示名を入力してください
+    pause
     exit /b 1
 )
 if "%description%"=="" (
     echo ❌ 説明を入力してください
+    pause
     exit /b 1
 )
 if "%color_code%"=="" (
     echo ❌ カラーコードを入力してください
+    pause
     exit /b 1
 )
 
 REM PowerShellで妥当性チェック
 powershell -NoProfile -ExecutionPolicy Bypass -Command "& { ^
-    $categoryName = '%category_name%'; ^
-    $colorCode = '%color_code%'; ^
+    $categoryName = \"%category_name%\"; ^
+    $colorCode = \"%color_code%\"; ^
     ^
     # カテゴリ名の妥当性チェック（英数字とハイフンのみ） ^
     if ($categoryName -notmatch '^[a-z0-9-]+$') { ^
-        Write-Host '❌ カテゴリ名は小文字の英数字とハイフンのみ使用できます' -ForegroundColor Red; ^
+        Write-Host 'エラー: カテゴリ名は小文字の英数字とハイフンのみ使用できます' -ForegroundColor Red; ^
         exit 1; ^
     } ^
     ^
     # カラーコードの妥当性チェック ^
     if ($colorCode -notmatch '^#[0-9a-fA-F]{6}$') { ^
-        Write-Host '❌ カラーコードは #RRGGBB 形式で入力してください（例: #0078d4）' -ForegroundColor Red; ^
+        Write-Host 'エラー: カラーコードは #RRGGBB 形式で入力してください（例: #0078d4）' -ForegroundColor Red; ^
         exit 1; ^
     } ^
+    Write-Host '入力値の検証に成功しました' -ForegroundColor Green; ^
 }"
 
-if errorlevel 1 exit /b 1
+if errorlevel 1 (
+    echo 入力値検証に失敗しました
+    pause
+    exit /b 1
+)
+
+echo デバッグ: PowerShell検証完了
 
 REM 既存カテゴリとの重複チェック
 if exist "%category_name%" (
