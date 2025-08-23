@@ -20,15 +20,6 @@
 開発・インフラで使うアイコンを集めたプライベートドキュメントサイトです。  
 GitHub Pages で公開しますが、検索エンジンからは隠蔽されています。
 
-### アイコンカテゴリ
-
-以下のカテゴリのアイコンを提供:
-
-- **GCP** (`/gcp/`): Google Cloud Platform アイコン
-- **AWS** (`/aws/`): Amazon Web Services アイコン
-- **Kubernetes** (`/kubernetes/`): Kubernetes リソースアイコン
-- **CNCF** (`/cncf/`): Cloud Native Computing Foundation プロジェクトアイコン
-
 ### 技術アーキテクチャ
 
 #### 動的アイコン管理システム
@@ -95,16 +86,9 @@ icons-factory/
 ├── CLAUDE.md                    # Claude Code用プロジェクト指示（このファイル）
 ├── index.html                   # メインページ（手動更新）
 ├── robots.txt                   # 検索エンジン除外設定（サイト・リポジトリ両方）
-├── gcp/                         # GCPアイコンカテゴリ（216個）
-│   └── *.png                    # GCPアイコン（最適化済み）
-├── aws/                         # AWSアイコンカテゴリ（307個）
-│   └── *.png                    # AWSアイコン（最適化済み）
-├── kubernetes/                  # Kubernetesアイコンカテゴリ（40個）
-│   └── *.png                    # Kubernetesアイコン（最適化済み）
-├── cncf/                        # CNCFプロジェクトアイコンカテゴリ（197個）
-│   └── *.png                    # CNCFプロジェクトアイコン（最適化済み）
-├── logo/                        # 各社ロゴカテゴリ（111個）
-│   └── *.png                    # 各社ロゴアイコン（最適化済み）
+├── [カテゴリ名]/                # アイコンカテゴリフォルダ
+│   └── *.png                    # アイコン（最適化済み）
+├── [その他のカテゴリ]/          # 各アイコンカテゴリ（動的に追加可能）
 ├── template/                    # 新カテゴリ用テンプレート
 │   ├── index.html               # マスターテンプレート（デプロイ時に各カテゴリにコピー）
 │   └── README.md                # カテゴリ追加手順
@@ -114,7 +98,6 @@ icons-factory/
         └── main.yml             # 統合ワークフロー（変換・デプロイ）
 
 注意: icons.json、search-index.json、metadata.json、index.html（各カテゴリ）はデプロイ時のみ生成される一時ファイルです
-総アイコン数: 871個（2025年8月時点）
 ```
 
 ## GitHub Actions 仕様
@@ -195,29 +178,34 @@ icons-factory/
 **GitHub Pages サイト隠蔽:**
 
 robots.txt 設定:
+
 ```
 User-agent: *
 Disallow: /
 ```
 
 HTML メタタグ設定（全ページ共通）:
+
 ```html
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
 ```
 
-**GitHubリポジトリ隠蔽:**
+**GitHub リポジトリ隠蔽:**
 
 .nojekyll ファイル:
+
 ```
 （空ファイル - Jekyll処理を無効化）
 ```
 
 .gitattributes 設定:
+
 ```
 # GitHubでの言語検出を制限
 *.html linguist-detectable=false
 *.css linguist-detectable=false
 *.js linguist-detectable=false
+*.sh linguist-detectable=false
 *.md linguist-documentation
 
 # バイナリファイルとして扱い、検索インデックスから除外
@@ -229,6 +217,7 @@ HTML メタタグ設定（全ページ共通）:
 ```
 
 robots.txt 追加設定:
+
 ```
 # GitHubリポジトリページも隠蔽
 User-agent: *
@@ -246,7 +235,7 @@ Disallow: /.github/
 
 ### 検索エンジンに発見されない理由
 
-1. **robots.txt**: 全ページアクセス禁止 + GitHubファイル除外
+1. **robots.txt**: 全ページアクセス禁止 + GitHub ファイル除外
 2. **メタタグ**: インデックス・フォロー・アーカイブ・スニペット禁止
 3. **SEO メタ情報**: 意図的に削除済み
 4. **sitemap**: 存在しない（検索エンジンに構造を教えない）
@@ -333,7 +322,7 @@ GitHub Actions で画像変換時に、URL 安全でないファイル名を自�
 
 1. `mkdir [カテゴリ名]` でフォルダ作成
 2. 画像ファイル（任意の形式）を配置
-3. **重要**: メインページ（`index.html`）にカテゴリカードとCSSを手動追加
+3. **重要**: メインページ（`index.html`）にカテゴリカードと CSS を手動追加
 4. GitHub Actions が自動実行（ワークフロー設定変更不要）
 
 ### アイコン一括更新
@@ -396,13 +385,4 @@ GitHub Actions で画像変換時に、URL 安全でないファイル名を自�
 
 ## TODO（将来の改善項目）
 
-### トップページの改善
-
-- [x] **アイコン数の修正**: トップページに表示されるアイコン数が正しくない問題を修正
-- [x] **不要なアイコン表示削除**: トップページの各カテゴリのアイコンプレビューを削除（シンプル化）
-- [x] **カテゴリ追加自動化**: 新しいカテゴリを追加するためのシェルスクリプト（`add-category.sh`）を作成
-  - インタラクティブ・コマンドライン引数両方に対応
-  - テンプレートの自動コピー
-  - CSS クラスの自動追加
-  - HTML カードの自動追加
-  - 入力値検証とエラーハンドリング
+現在無し

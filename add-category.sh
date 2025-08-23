@@ -101,7 +101,7 @@ print_success "カテゴリフォルダを作成しました: $category_name/"
 print_info "CSSスタイルを追加しています..."
 
 # CSSコメントの前に挿入
-sed -i "/\/\* 🚨 新しいカテゴリを追加する場合は下記の形式でCSS追加 🚨/i\\
+sed -i "172a\\
       .$category_name::before {\\
         background: $color_code;\\
       }\\
@@ -113,7 +113,7 @@ print_success "CSSスタイルを追加しました"
 print_info "カテゴリカードを追加しています..."
 
 # HTMLコメントの前に挿入
-sed -i "/<!-- 🚨 新しいカテゴリを追加する場合は下記の形式でHTML編集 🚨/i\\
+sed -i "602a\\
           <a href=\"./$category_name/\" class=\"platform-card $category_name\">\\
             <h2 class=\"platform-name\">$display_name</h2>\\
             <p class=\"platform-description\">\\

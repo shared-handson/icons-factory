@@ -16,7 +16,7 @@
 | **AWS**        | Amazon Web Services サービス   |
 | **Kubernetes** | Kubernetes リソース            |
 | **CNCF**       | Cloud Native プロジェクト      |
-| **Logo**       | 各社ロゴアイコン               |
+| **Commons**    | カテゴライズできない細かいアイコン |
 
 ## 📊 アイコンソース
 
@@ -26,7 +26,7 @@
 | **GCP**        | [GCP Icons](https://gcpicons.com/)                               |
 | **Kubernetes** | [Kubernetes Community](https://github.com/kubernetes/community/) |
 | **CNCF**       | [CNCF Artwork](https://github.com/cncf/artwork/)                 |
-| **Logo**       | [icon-collection](https://github.com/benc-uk/icon-collection)    |
+| **Commons**    | 各種オープンソースプロジェクト・企業ロゴ                        |
 
 ## ✨ 特徴
 
@@ -209,14 +209,11 @@ icons-factory/
 ├── robots.txt                   # 検索エンジン除外設定（サイト・リポジトリ両方）
 ├── search-index.json            # 全カテゴリ統合検索用（自動生成）
 ├── metadata.json                # アイコン統計情報（自動生成）
-├── gcp/                         # GCP アイコンカテゴリ（216個）
+├── [カテゴリ名]/                # アイコンカテゴリフォルダ
 │   ├── *.png                    # 最適化済みアイコン
 │   ├── icons.json               # 自動生成アイコンリスト
 │   └── index.html               # カテゴリページ（カテゴリ内検索機能付き、自動生成）
-├── aws/                         # AWS アイコンカテゴリ（307個）
-├── kubernetes/                  # Kubernetes アイコンカテゴリ（40個）
-├── cncf/                        # CNCF アイコンカテゴリ（197個）
-├── logo/                        # 各社ロゴカテゴリ（111個）
+├── [その他のカテゴリ]/          # 各アイコンカテゴリ（動的に追加可能）
 ├── template/                    # 新カテゴリ用テンプレート
 │   ├── index.html               # マスターテンプレート（検索・URL・DL機能統合）
 │   └── README.md                # カテゴリ追加手順
@@ -227,7 +224,6 @@ icons-factory/
 
 注意: icons.json、search-index.json、metadata.json、*/index.html は
       デプロイ時のみ生成される中間ファイルです
-総アイコン数: 871個（2025年8月時点）
 ```
 
 ## 📋 ルール・規約
