@@ -1,5 +1,7 @@
 # カテゴリ追加自動化スクリプト (PowerShell版)
-# 使用方法: .\add-category.ps1 [カテゴリ名] [表示名] [説明] [カラーコード]
+# ⚠️ 注意: このスクリプトは現在デバッグ中で、正しく動作しない場合があります
+# まずは add-category.sh (Bash版) をお試しください
+# 使用方法: .\add-category.ps1 -CategoryName [カテゴリ名] -DisplayName [表示名] -Description [説明] -ColorCode [カラーコード]
 
 param(
     [string]$CategoryName = "",
@@ -21,25 +23,29 @@ $NC = "`e[0m"  # No Color
 # ヘルパー関数
 function Write-Info {
     param([string]$Message)
-    Write-Host "${BLUE}ℹ️  $Message${NC}"
+    Write-Host "${BLUE}ℹ️  $Message${NC}" -NoNewline
+    Write-Host ""
 }
 
 function Write-Success {
     param([string]$Message)
-    Write-Host "${GREEN}✅ $Message${NC}"
+    Write-Host "${GREEN}✅ $Message${NC}" -NoNewline
+    Write-Host ""
 }
 
 function Write-Warning {
     param([string]$Message)
-    Write-Host "${YELLOW}⚠️  $Message${NC}"
+    Write-Host "${YELLOW}⚠️  $Message${NC}" -NoNewline
+    Write-Host ""
 }
 
 function Write-Error {
     param([string]$Message)
-    Write-Host "${RED}❌ $Message${NC}"
+    Write-Host "${RED}❌ $Message${NC}" -NoNewline
+    Write-Host ""
 }
 
-# 引数チェック
+# 引数チェック（位置パラメータまたは名前付きパラメータの両方に対応）
 if ($args.Count -eq 0 -and [string]::IsNullOrEmpty($CategoryName)) {
     Write-Info "Icons Factory カテゴリ追加スクリプト"
     Write-Host ""
@@ -66,15 +72,22 @@ if ($args.Count -eq 0 -and [string]::IsNullOrEmpty($CategoryName)) {
     } else {
         $ColorCode = $ColorCodeInput
     }
+} elseif ($args.Count -gt 0 -and [string]::IsNullOrEmpty($CategoryName)) {
+    # 位置パラメータでの呼び出し
+    $CategoryName = $args[0]
+    $DisplayName = if ($args.Count -gt 1) { $args[1] } else { "" }
+    $Description = if ($args.Count -gt 2) { $args[2] } else { "" }
+    $ColorCode = if ($args.Count -gt 3) { $args[3] } else { "#000000" }
+    
+    # コマンドライン引数でカラーコードが未指定の場合
+    if ($ColorCode -eq "#000000" -and $args.Count -lt 4) {
+        Write-Info "カラーコードが未指定のため、デフォルト値 #000000 (黒) を使用します"
+    }
 } else {
-    # コマンドライン引数モード
+    # 名前付きパラメータでの呼び出し
     if ([string]::IsNullOrEmpty($ColorCode)) {
         $ColorCode = "#000000"
-        
-        # コマンドライン引数でカラーコードが未指定の場合
-        if ($args.Count -lt 4) {
-            Write-Info "カラーコードが未指定のため、デフォルト値 #000000 (黒) を使用します"
-        }
+        Write-Info "カラーコードが未指定のため、デフォルト値 #000000 (黒) を使用します"
     }
 }
 
@@ -125,7 +138,7 @@ Write-Info "CSSスタイルを追加しています..."
 
 # CSSマーカーコメントの行番号を動的に取得
 $cssContent = Get-Content "index.html"
-$cssMarkerLine = 0
+$cssMarkerLine = -1
 for ($i = 0; $i -lt $cssContent.Count; $i++) {
     if ($cssContent[$i] -match "🚨 新しいカテゴリを追加する場合は下記の形式でCSS追加 🚨") {
         $cssMarkerLine = $i + 1  # PowerShellは0ベース、行番号は1ベース
@@ -133,15 +146,16 @@ for ($i = 0; $i -lt $cssContent.Count; $i++) {
     }
 }
 
-if ($cssMarkerLine -eq 0) {
+if ($cssMarkerLine -eq -1) {
     Write-Error "CSSマーカーコメントが見つかりません"
     exit 1
 }
 
-# マーカーコメントの直前に挿入
-$cssInsertLine = $cssMarkerLine - 1
+# マーカーコメントの直前に挿入（Bashスクリプトと同じ位置：marker - 2）
+$cssInsertLine = $cssMarkerLine - 2
+
+# CSSSスタイルを挿入
 $cssToInsert = @(
-    "",
     "      .$($CategoryName)::before {",
     "        background: $ColorCode;",
     "      }"
@@ -150,12 +164,22 @@ $cssToInsert = @(
 # ファイルの内容を取得し、指定位置に挿入
 $content = Get-Content "index.html"
 $newContent = @()
-$newContent += $content[0..($cssInsertLine-2)]  # マーカーコメントより前の行
-$newContent += $cssToInsert  # 挿入するCSS
-$newContent += $content[($cssInsertLine-1)..($content.Count-1)]  # マーカーコメント以降の行
 
-# ファイルに書き戻し
-$newContent | Set-Content "index.html" -Encoding UTF8
+# 挿入位置より前の行
+if ($cssInsertLine - 1 -ge 0) {
+    $newContent += $content[0..($cssInsertLine - 1)]
+}
+
+# 挿入するCSS
+$newContent += $cssToInsert
+
+# 挿入位置以降の行
+if ($cssInsertLine -lt $content.Count) {
+    $newContent += $content[$cssInsertLine..($content.Count - 1)]
+}
+
+# ファイルに書き戻し（UTF8エンコーディング）
+$newContent | Out-File "index.html" -Encoding utf8 -NoNewline
 
 Write-Success "CSSスタイルを追加しました (行番号: $cssInsertLine)"
 
@@ -164,7 +188,7 @@ Write-Info "カテゴリカードを追加しています..."
 
 # HTMLマーカーコメントの行番号を動的に取得
 $htmlContent = Get-Content "index.html"
-$htmlMarkerLine = 0
+$htmlMarkerLine = -1
 for ($i = 0; $i -lt $htmlContent.Count; $i++) {
     if ($htmlContent[$i] -match "🚨 新しいカテゴリを追加する場合は下記の形式でHTML編集 🚨") {
         $htmlMarkerLine = $i + 1  # PowerShellは0ベース、行番号は1ベース
@@ -172,13 +196,14 @@ for ($i = 0; $i -lt $htmlContent.Count; $i++) {
     }
 }
 
-if ($htmlMarkerLine -eq 0) {
+if ($htmlMarkerLine -eq -1) {
     Write-Error "HTMLマーカーコメントが見つかりません"
     exit 1
 }
 
-# マーカーコメントの直前に挿入
-$htmlInsertLine = $htmlMarkerLine - 1
+# マーカーコメントの直前に挿入（Bashスクリプトと同じ位置：marker - 2）
+$htmlInsertLine = $htmlMarkerLine - 2
+
 $htmlToInsert = @(
     "          <a href=`"./$CategoryName/`" class=`"platform-card $CategoryName`">",
     "            <h2 class=`"platform-name`">$DisplayName</h2>",
@@ -191,19 +216,28 @@ $htmlToInsert = @(
     "              >",
     "              <span class=`"visit-button`">探索する →</span>",
     "            </div>",
-    "          </a>",
-    ""
+    "          </a>"
 )
 
 # ファイルの内容を取得し、指定位置に挿入
 $content = Get-Content "index.html"
 $newContent = @()
-$newContent += $content[0..($htmlInsertLine-2)]  # マーカーコメントより前の行
-$newContent += $htmlToInsert  # 挿入するHTML
-$newContent += $content[($htmlInsertLine-1)..($content.Count-1)]  # マーカーコメント以降の行
 
-# ファイルに書き戻し
-$newContent | Set-Content "index.html" -Encoding UTF8
+# 挿入位置より前の行
+if ($htmlInsertLine - 1 -ge 0) {
+    $newContent += $content[0..($htmlInsertLine - 1)]
+}
+
+# 挿入するHTML
+$newContent += $htmlToInsert
+
+# 挿入位置以降の行
+if ($htmlInsertLine -lt $content.Count) {
+    $newContent += $content[$htmlInsertLine..($content.Count - 1)]
+}
+
+# ファイルに書き戻し（UTF8エンコーディング）
+$newContent | Out-File "index.html" -Encoding utf8 -NoNewline
 
 Write-Success "カテゴリカードを追加しました (行番号: $htmlInsertLine)"
 

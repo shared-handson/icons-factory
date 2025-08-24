@@ -406,6 +406,8 @@ Unix/Linux/macOS の場合:
 
 Windows PowerShell の場合:
 
+**⚠️ 注意**: PowerShellスクリプトは現在デバッグ中で、正しく動作しない場合があります。まずは Unix/Linux/macOS の Bash スクリプトをお試しください。
+
 ```powershell
 # インタラクティブモード
 .\add-category.ps1
@@ -495,4 +497,10 @@ Windows PowerShell の場合:
 
 ## TODO（将来の改善項目）
 
-現在無し
+### PowerShellスクリプト関連
+
+- **add-category.ps1 の修正**: 現在デバッグ中で正しく動作しない可能性がある
+  - ファイル操作（配列範囲、ファイル書き込み）の問題を解決
+  - Bashスクリプトと完全に同じ動作になるよう修正
+  - 引数処理の改善（位置パラメータと名前付きパラメータの両対応）
+  - エラーハンドリングの強化

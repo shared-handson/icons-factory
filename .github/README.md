@@ -119,6 +119,8 @@
 
 **Windows PowerShell の場合:**
 
+⚠️ **注意**: PowerShellスクリプトは現在デバッグ中で、正しく動作しない場合があります。まずは Unix/Linux/macOS の Bash スクリプトをお試しください。
+
 ```powershell
 # インタラクティブモード
 .\add-category.ps1
