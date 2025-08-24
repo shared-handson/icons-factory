@@ -5,9 +5,11 @@
 ## 言語設定
 
 **重要**: Claude Code は常に日本語で回答すること  
-**重要**: .kiro/steering があったら見ること  
+**重要**: .kiro/steering があったら参照すること  
 **重要**: このリポジトリの README は.github/README.md である  
-**重要**: git commit や push のタイトルやメッセージ は常に日本語にすること
+**重要**: Claude.md を編集するときは.github/README.md も一緒に変更すること  
+**重要**: git commit や push のタイトルやメッセージ は常に日本語にすること  
+**重要**: アイコンの整理を指示されたときは .github/ICON-SORT.md を参照すること
 
 ## コントリビューターのメンバー
 

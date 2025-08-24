@@ -154,12 +154,20 @@
       }
 
       /* プラットフォーム固有のカラー */
+      .aws::before {
+        background: #ff9900;
+      }
+
+      .azure::before {
+        background: #0078d4;
+      }
+
       .gcp::before {
         background: #4285f4;
       }
 
-      .aws::before {
-        background: #ff9900;
+      .oci::before {
+        background: #e45844;
       }
 
       .kubernetes::before {
@@ -569,9 +577,31 @@
       </header>
 
       <main>
+        <a href="./aws/" class="platform-card aws">
+          <h2 class="platform-name">Amazon Web Services</h2>
+          <p class="platform-description">
+            AWSサービスアイコン。EC2、S3、Lambda、RDSなど。
+          </p>
+          <div class="platform-stats">
+            <span class="icon-count" data-category="aws">... アイコン</span>
+            <span class="visit-button">探索する →</span>
+          </div>
+        </a>
+
+        <a href="./azure/" class="platform-card azure">
+          <h2 class="platform-name">Microsoft Azure</h2>
+          <p class="platform-description">
+            Azure サービスアイコン。Virtual Machine、Blob Storageなど。
+          </p>
+          <div class="platform-stats">
+            <span class="icon-count" data-category="azure">... アイコン</span>
+            <span class="visit-button">探索する →</span>
+          </div>
+        </a>
+
         <div class="platforms-grid">
           <a href="./gcp/" class="platform-card gcp">
-            <h2 class="platform-name">Google Cloud Platform</h2>
+            <h2 class="platform-name">Google Cloud</h2>
             <p class="platform-description">
               Google Cloudサービスアイコン。BigQuery、Cloud Storage、Compute
               Engineなど。
@@ -582,13 +612,14 @@
             </div>
           </a>
 
-          <a href="./aws/" class="platform-card aws">
-            <h2 class="platform-name">Amazon Web Services</h2>
+          <a href="./oci/" class="platform-card oci">
+            <h2 class="platform-name">Oracle Cloud Infrastructure</h2>
             <p class="platform-description">
-              AWSサービスアイコン。EC2、S3、Lambda、RDSなど。
+              Oracle Cloud Infrastructure サービスアイコン。Virtual
+              Machine、Exadata、HeatWaveなど。
             </p>
             <div class="platform-stats">
-              <span class="icon-count" data-category="aws">... アイコン</span>
+              <span class="icon-count" data-category="oci">... アイコン</span>
               <span class="visit-button">探索する →</span>
             </div>
           </a>
@@ -626,6 +657,7 @@
               <span class="visit-button">探索する →</span>
             </div>
           </a>
+
           <a href="./sakura/" class="platform-card sakura">
             <h2 class="platform-name">さくらインターネット</h2>
             <p class="platform-description">
@@ -638,6 +670,7 @@
               <span class="visit-button">探索する →</span>
             </div>
           </a>
+
           <a href="./cisco/" class="platform-card cisco">
             <h2 class="platform-name">シスコシステムズ</h2>
             <p class="platform-description">CISCO公式アイコンCollection</p>
@@ -651,6 +684,7 @@
             <p class="platform-description">
               カテゴライズできない細かいアイコンたち
             </p>
+
             <div class="platform-stats">
               <span class="icon-count" data-category="commons"
                 >... アイコン</span
