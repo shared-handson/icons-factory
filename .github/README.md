@@ -8,6 +8,14 @@
 
 **🔗 サイト URL**: https://shared-handson.github.io/icons-factory/
 
+## ⚠️ 重要：命名規則
+
+**カテゴリ名とファイル名では極力日本語を避けてください**
+
+- **推奨**: `database.png`, `cloud-storage.svg`, `load-balancer.jpg`
+- **非推奨**: `データベース.png`, `クラウド ストレージ.svg`
+- **理由**: GitHub Actions のファイル名変更自動処理で予期しない動作やファイル名の意図しない変換が発生する可能性があります
+
 ## 📦 アイコンカテゴリ
 
 | カテゴリ                 | 説明                               |
