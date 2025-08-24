@@ -288,6 +288,65 @@ GitHub Actions で画像変換時に、URL 安全でないファイル名を自�
 - **動的サイズ取得**: `img.naturalWidth`と`img.naturalHeight`で実際の画像サイズを取得・表示
 - **ユーザビリティ**: アイコンの詳細情報を一目で確認可能
 
+## 技術的トラブルシューティング履歴
+
+### 2024年8月：ciscoフォルダJPG変換問題の解決
+
+**問題の発見**
+- ciscoフォルダの294個のJPGファイルがワークフローで処理されずPNGに変換されない
+- サニタイズは実行されるがJPG→PNG変換が失敗
+
+**原因の特定**
+1. **ファイル存在チェックの問題**: `ls "$folder"*.jpg`がスペース含むファイル名で正常動作しない
+2. **処理順序の問題**: サニタイズと変換が別ステップで実行され、連携が不完全
+3. **複数形式一括処理の複雑性**: JPG、JPEG、GIFを一つの関数で処理することによる制御の困難
+
+**解決アプローチ**
+1. **ワークフロー構造の根本的再設計**:
+   - サニタイズ → 変換 → リサイズの明確な分離
+   - 各拡張子を独立したステップに分割
+
+2. **実装した修正**:
+   ```yaml
+   # 修正前：複数形式を一括処理
+   - name: Convert other image formats to PNG
+   
+   # 修正後：拡張子別独立処理
+   - name: Sanitize all image filenames  # 最初に一括サニタイズ
+   - name: Convert SVG to PNG
+   - name: Convert JPG to PNG           # 個別処理
+   - name: Convert JPEG to PNG
+   - name: Convert GIF to PNG
+   - name: Optimize PNG files
+   ```
+
+3. **ファイル検索方法の改善**:
+   ```bash
+   # 修正前：スペースでエラー
+   if ls "$folder"*.jpg 1> /dev/null 2>&1; then
+   
+   # 修正後：findコマンドでスペース対応
+   if find "$folder" -maxdepth 1 -name "*.jpg" -type f | grep -q .; then
+   ```
+
+**テスト戦略**
+- 包括的テストファイルの作成:
+  - `"new test file with spaces.jpg"` (スペース含むJPG)
+  - `"special@chars#test.jpeg"` (特殊文字含むJPEG)
+  - `"animated test.gif"` (スペース含むGIF)
+  - `"complex svg (test).svg"` (スペース+括弧含むSVG)
+  - `"大きな画像ファイル.png"` (日本語含むPNG)
+
+**結果**
+- ✅ ciscoフォルダ：107個のJPGファイル → 全て正常にPNG変換
+- ✅ test-imagesフォルダ：全形式・全ファイル名パターン → 正常処理
+- ✅ ワークフロー安定性：拡張子別処理により明確なエラー追跡が可能
+
+**学んだ教訓**
+- 複雑な処理は単一ステップより個別ステップに分割する方が保守性が高い
+- ファイル名にスペースや特殊文字を含む場合は`find`コマンドが`ls`より適切
+- 自動処理では事前のファイル名サニタイズが重要
+
 ## よくある作業
 
 ### URL コピー機能の仕様
