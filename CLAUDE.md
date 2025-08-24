@@ -4,9 +4,10 @@
 
 ## 言語設定
 
-**重要**: Claude Code は常に日本語で回答すること
-**重要**: .kiro/steering があったら見ること
-**重要**: このリポジトリの README は.github/README.md である
+**重要**: Claude Code は常に日本語で回答すること  
+**重要**: .kiro/steering があったら見ること  
+**重要**: このリポジトリの README は.github/README.md である  
+**重要**: git commit や push のタイトルやメッセージ は常に日本語にすること
 
 ## コントリビューターのメンバー
 
@@ -46,7 +47,7 @@ GitHub Pages で公開しますが、検索エンジンからは隠蔽されて�
 
 - **推奨**: `database.png`, `cloud-storage.svg`, `load-balancer.jpg`
 - **非推奨**: `データベース.png`, `クラウド ストレージ.svg`
-- **理由**: GitHub Actionsの自動処理で予期しない動作やファイル名の意図しない変換が発生する可能性がある
+- **理由**: GitHub Actions の自動処理で予期しない動作やファイル名の意図しない変換が発生する可能性がある
 - **特に注意**: 日本語ファイル名はサニタイズ処理で `icon.png` などの汎用名に変換されることがある
 
 ### ファイル名ハードコーディング禁止
@@ -120,34 +121,34 @@ icons-factory/
 
 **処理フロー:**
 
-1. **画像変換**
+1. **ファイル名サニタイズ**
 
-   - **SVG 変換**: Inkscape 使用、長辺 512px・アスペクト比維持・縮小のみ
-   - **JPG/JPEG/GIF 変換**: ImageMagick 使用、長辺 512px・アスペクト比維持・縮小のみ
-   - **ファイル名サニタイズ**: URL 安全な形式に自動変換（スペース → アンダースコア、特殊文字 → ハイフン、大文字保持）
+   - 全画像ファイル（SVG/JPG/JPEG/GIF/PNG）を一括でURL安全な形式に変換
+   - スペース → アンダースコア、特殊文字 → ハイフン、大文字保持
+
+2. **画像変換（拡張子別独立処理）**
+
+   - **SVG → PNG**: Inkscape 使用、長辺 512px・アスペクト比維持・拡大縮小両対応
+   - **JPG → PNG**: ImageMagick 使用、長辺 512px・アスペクト比維持・縮小のみ
+   - **JPEG → PNG**: ImageMagick 使用、長辺 512px・アスペクト比維持・縮小のみ
+   - **GIF → PNG**: ImageMagick 使用、長辺 512px・アスペクト比維持・縮小のみ
    - **元ファイル削除**: 変換成功後に元ファイル（SVG/JPG/JPEG/GIF）を自動削除
 
-2. **PNG 最適化**
+3. **PNG 最適化**
 
    - **サイズチェック**: 長辺が 512px を超える PNG ファイルを検出
    - **自動縮小**: ImageMagick 使用、長辺 512px・アスペクト比維持
-   - **ファイル名サニタイズ**: 既存 PNG ファイルも URL 安全な形式に変換
-
-3. **アイコンリスト生成**
-
-   - 各カテゴリフォルダの PNG ファイルを検出
-   - `icons.json`を自動生成
 
 4. **変更コミット**
 
    - 変換された PNG ファイル
-   - 生成された`icons.json`
-   - **注意**: 各カテゴリの`index.html`はコミットしない
+   - 削除された元ファイル（SVG/JPG/JPEG/GIF）
+   - **注意**: icons.json や各カテゴリの index.html はコミットしない
 
 5. **デプロイ準備**
 
    - `template/index.html`を各カテゴリにコピー（一時的）
-   - シンボリックリンクの代替実装
+   - 各フォルダの `icons.json`を自動生成
 
 6. **検索インデックス・メタデータ生成**
 
@@ -215,6 +216,9 @@ HTML メタタグ設定（全ページ共通）:
 *.css linguist-detectable=false
 *.js linguist-detectable=false
 *.sh linguist-detectable=false
+*.ps1 linguist-detectable=false
+*.bat linguist-detectable=false
+*.cmd linguist-detectable=false
 *.md linguist-documentation
 
 # バイナリファイルとして扱い、検索インデックスから除外
@@ -290,59 +294,68 @@ GitHub Actions で画像変換時に、URL 安全でないファイル名を自�
 
 ## 技術的トラブルシューティング履歴
 
-### 2024年8月：ciscoフォルダJPG変換問題の解決
+### 2024 年 8 月：cisco フォルダ JPG 変換問題の解決
 
 **問題の発見**
-- ciscoフォルダの294個のJPGファイルがワークフローで処理されずPNGに変換されない
-- サニタイズは実行されるがJPG→PNG変換が失敗
+
+- cisco フォルダの 294 個の JPG ファイルがワークフローで処理されず PNG に変換されない
+- サニタイズは実行されるが JPG→PNG 変換が失敗
 
 **原因の特定**
+
 1. **ファイル存在チェックの問題**: `ls "$folder"*.jpg`がスペース含むファイル名で正常動作しない
 2. **処理順序の問題**: サニタイズと変換が別ステップで実行され、連携が不完全
-3. **複数形式一括処理の複雑性**: JPG、JPEG、GIFを一つの関数で処理することによる制御の困難
+3. **複数形式一括処理の複雑性**: JPG、JPEG、GIF を一つの関数で処理することによる制御の困難
 
 **解決アプローチ**
+
 1. **ワークフロー構造の根本的再設計**:
+
    - サニタイズ → 変換 → リサイズの明確な分離
    - 各拡張子を独立したステップに分割
 
 2. **実装した修正**:
+
    ```yaml
    # 修正前：複数形式を一括処理
    - name: Convert other image formats to PNG
-   
+
    # 修正後：拡張子別独立処理
-   - name: Sanitize all image filenames  # 最初に一括サニタイズ
+   - name: Sanitize all image filenames # 最初に一括サニタイズ
    - name: Convert SVG to PNG
-   - name: Convert JPG to PNG           # 個別処理
+   - name: Convert JPG to PNG # 個別処理
    - name: Convert JPEG to PNG
    - name: Convert GIF to PNG
    - name: Optimize PNG files
    ```
 
 3. **ファイル検索方法の改善**:
+
    ```bash
    # 修正前：スペースでエラー
    if ls "$folder"*.jpg 1> /dev/null 2>&1; then
-   
+
    # 修正後：findコマンドでスペース対応
    if find "$folder" -maxdepth 1 -name "*.jpg" -type f | grep -q .; then
    ```
 
 **テスト戦略**
+
 - 包括的テストファイルの作成:
-  - `"new test file with spaces.jpg"` (スペース含むJPG)
-  - `"special@chars#test.jpeg"` (特殊文字含むJPEG)
-  - `"animated test.gif"` (スペース含むGIF)
-  - `"complex svg (test).svg"` (スペース+括弧含むSVG)
-  - `"大きな画像ファイル.png"` (日本語含むPNG)
+  - `"new test file with spaces.jpg"` (スペース含む JPG)
+  - `"special@chars#test.jpeg"` (特殊文字含む JPEG)
+  - `"animated test.gif"` (スペース含む GIF)
+  - `"complex svg (test).svg"` (スペース+括弧含む SVG)
+  - `"大きな画像ファイル.png"` (日本語含む PNG)
 
 **結果**
-- ✅ ciscoフォルダ：107個のJPGファイル → 全て正常にPNG変換
-- ✅ test-imagesフォルダ：全形式・全ファイル名パターン → 正常処理
+
+- ✅ cisco フォルダ：107 個の JPG ファイル → 全て正常に PNG 変換
+- ✅ test-images フォルダ：全形式・全ファイル名パターン → 正常処理
 - ✅ ワークフロー安定性：拡張子別処理により明確なエラー追跡が可能
 
 **学んだ教訓**
+
 - 複雑な処理は単一ステップより個別ステップに分割する方が保守性が高い
 - ファイル名にスペースや特殊文字を含む場合は`find`コマンドが`ls`より適切
 - 自動処理では事前のファイル名サニタイズが重要
@@ -376,6 +389,7 @@ GitHub Actions で画像変換時に、URL 安全でないファイル名を自�
 **自動化スクリプト使用（推奨）**:
 
 Unix/Linux/macOS の場合:
+
 ```bash
 # インタラクティブモード
 ./add-category.sh
@@ -391,6 +405,7 @@ Unix/Linux/macOS の場合:
 ```
 
 Windows PowerShell の場合:
+
 ```powershell
 # インタラクティブモード
 .\add-category.ps1
@@ -402,13 +417,13 @@ Windows PowerShell の場合:
 .\add-category.ps1 -CategoryName "my-category" -DisplayName "My Category" -Description "説明文"
 ```
 
-
 **スクリプトの特徴:**
+
 - **動的挿入**: マーカーコメント（🚨）を検索して適切な位置に自動挿入
 - **カラーコードデフォルト値**: 未入力時は自動的に #000000（黒）を設定
 - **エラーハンドリング**: カテゴリ名・カラーコード・重複の完全チェック
 - **クロスプラットフォーム**: Unix/Linux/macOS（Bash）・Windows（PowerShell）対応
-- **行番号ハードコーディング回避**: index.htmlの構造変更に自動対応
+- **行番号ハードコーディング回避**: index.html の構造変更に自動対応
 
 **重要**: スクリプト実行後も `.github/README.md` のカテゴリ表とソース表に新カテゴリの説明とソースを手動で追加してください。
 

@@ -242,7 +242,7 @@ npx serve
 - **トリガー**: main ブランチへのプッシュ（全ファイル）
 - **ファイル名サニタイズ**: 全画像ファイル（SVG/JPG/JPEG/GIF/PNG）を一括でURL安全な形式に変換
 - **画像変換**（拡張子別独立処理）:
-  - SVG → PNG: Inkscape 使用、長辺 512px・アスペクト比維持・縮小のみ
+  - SVG → PNG: Inkscape 使用、長辺 512px・アスペクト比維持・拡大縮小両対応
   - JPG → PNG: ImageMagick 使用、長辺 512px・アスペクト比維持・縮小のみ  
   - JPEG → PNG: ImageMagick 使用、長辺 512px・アスペクト比維持・縮小のみ
   - GIF → PNG: ImageMagick 使用、長辺 512px・アスペクト比維持・縮小のみ
@@ -250,6 +250,7 @@ npx serve
 - **自動削除**: 変換成功後に元ファイル（SVG/JPG/JPEG/GIF）を削除
 - **リスト生成**: 各フォルダの icons.json を自動生成
 - **検索インデックス生成**: 全カテゴリ統合の search-index.json を自動生成
+- **メタデータ生成**: アイコン統計・カテゴリ情報の metadata.json を自動生成
 - **テンプレート配布**: デプロイ前に template/index.html を各カテゴリにコピー
 - **自動デプロイ**: GitHub Pages 自動公開
 
