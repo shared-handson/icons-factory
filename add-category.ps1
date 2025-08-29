@@ -179,7 +179,7 @@ if ($cssInsertLine -lt $content.Count) {
 }
 
 # ファイルに書き戻し（UTF8エンコーディング）
-$newContent | Out-File "index.html" -Encoding utf8 -NoNewline
+$newContent | Out-File "index.html" -Encoding utf8
 
 Write-Success "CSSスタイルを追加しました (行番号: $cssInsertLine)"
 
@@ -237,7 +237,7 @@ if ($htmlInsertLine -lt $content.Count) {
 }
 
 # ファイルに書き戻し（UTF8エンコーディング）
-$newContent | Out-File "index.html" -Encoding utf8 -NoNewline
+$newContent | Out-File "index.html" -Encoding utf8
 
 Write-Success "カテゴリカードを追加しました (行番号: $htmlInsertLine)"
 

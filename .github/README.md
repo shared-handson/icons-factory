@@ -31,6 +31,7 @@
 | **cisco**                | Cisco アイコンセット                 |
 | **デジタル庁**           | 汎用アイコン                         |
 | **Commons**              | カテゴライズできない細かいアイコン   |
+| **APRESIA**              | APRESIAアイコンセット   |
 
 ## 📊 アイコンソース
 
@@ -47,6 +48,7 @@
 | **cisco**                | [Cisco - Network Topology Icons](https://www.cisco.com/c/en/us/about/brand-center/network-topology-icons.html)       |
 | **デジタル庁**           | [イラストレーション・アイコン素材](https://www.digital.go.jp/policies/servicedesign/designsystem/Illustration_Icons) |
 | **Commons**              | 各種オープンソースプロジェクト・企業ロゴ                                                                             |
+| **APRESIA**           | [APRESIAイメージ素材](https://www.apresia.jp/products/support/material/) |
 
 ## 📝 ライセンス
 
