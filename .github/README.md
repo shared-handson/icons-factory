@@ -33,6 +33,7 @@
 | **Commons**              | カテゴライズできない細かいアイコン   |
 | **APRESIA**              | APRESIAアイコンセット   |
 | **Fortinet**              | Fortinetアイコンセット   |
+| **Shownet2025**              | Shownet2025アイコンセット   |
 
 ## 📊 アイコンソース
 
@@ -51,6 +52,7 @@
 | **Commons**              | 各種オープンソースプロジェクト・企業ロゴ                                                                             |
 | **APRESIA**           | [APRESIAイメージ素材](https://www.apresia.jp/products/support/material/) |
 | **Fortinet**           | [Fortinetアイコンセット](https://icons.fortinet.com/) |
+| **Shownet2025**           | [Shownet2025アイコン](https://www.interop.jp/2025/shownet/concept/) |
 
 ## 📝 ライセンス
 
