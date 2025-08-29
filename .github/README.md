@@ -32,6 +32,7 @@
 | **デジタル庁**           | 汎用アイコン                         |
 | **Commons**              | カテゴライズできない細かいアイコン   |
 | **APRESIA**              | APRESIAアイコンセット   |
+| **Fortinet**              | Fortinetアイコンセット   |
 
 ## 📊 アイコンソース
 
@@ -49,6 +50,7 @@
 | **デジタル庁**           | [イラストレーション・アイコン素材](https://www.digital.go.jp/policies/servicedesign/designsystem/Illustration_Icons) |
 | **Commons**              | 各種オープンソースプロジェクト・企業ロゴ                                                                             |
 | **APRESIA**           | [APRESIAイメージ素材](https://www.apresia.jp/products/support/material/) |
+| **Fortinet**           | [Fortinetアイコンセット](https://icons.fortinet.com/) |
 
 ## 📝 ライセンス
 
